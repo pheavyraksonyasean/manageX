@@ -38,11 +38,14 @@ export function ChartsSection() {
             <YAxis stroke="#EEEEEE" />
             <Tooltip
               contentStyle={{
-                backgroundColor: "#222831",
-                border: "1px solid #31363F",
+                backgroundColor: "#31363F",
+                border: "1px solid #77ABAE",
                 borderRadius: "8px",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
               }}
-              labelStyle={{ color: "#EEEEEE" }}
+              labelStyle={{ color: "#77ABAE", fontWeight: 600 }}
+              itemStyle={{ color: "#EEEEEE" }}
+              cursor={{ fill: "rgba(119, 171, 174, 0.1)" }}
             />
             <Bar dataKey="value" fill="#77ABAE" radius={[8, 8, 0, 0]} />
           </BarChart>
@@ -51,7 +54,7 @@ export function ChartsSection() {
 
       {/* Pie Chart */}
       <div className="border border-border rounded-xl p-6 bg-secondary/40">
-        <h3 className="text-lg font-semibold mb-6">Tasks by priorities</h3>
+        <h3 className="text-lg font-semibold mb-6">Tasks by status</h3>
         <ResponsiveContainer width="100%" height={300}>
           <PieChart>
             <Pie
@@ -70,11 +73,13 @@ export function ChartsSection() {
             </Pie>
             <Tooltip
               contentStyle={{
-                backgroundColor: "#222831",
-                border: "1px solid #31363F",
+                backgroundColor: "#31363F",
+                border: "1px solid #77ABAE",
                 borderRadius: "8px",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
               }}
-              labelStyle={{ color: "#EEEEEE" }}
+              labelStyle={{ color: "#77ABAE", fontWeight: 600 }}
+              itemStyle={{ color: "#EEEEEE" }}
             />
           </PieChart>
         </ResponsiveContainer>
