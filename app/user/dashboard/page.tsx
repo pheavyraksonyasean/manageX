@@ -1,7 +1,7 @@
-import { DashboardHeader } from "@/components/dashboard/dashboard-header";
-import { StatsSection } from "@/components/dashboard/stats-section";
-import { ChartsSection } from "@/components/dashboard/charts-section";
-import { RecentTasks } from "@/components/dashboard/recent-tasks";
+import { DashboardHeader } from "@/components/user/dashboard/dashboard-header";
+import { StatsSection } from "@/components/user/dashboard/stats-section";
+import { ChartsSection } from "@/components/user/dashboard/charts-section";
+import { RecentTasks } from "@/components/user/dashboard/recent-tasks";
 
 export default function DashboardPage() {
   return (

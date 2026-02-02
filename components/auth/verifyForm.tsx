@@ -79,7 +79,7 @@ export default function VerifyEmailForm() {
       {/* Back Button */}
       <div className="absolute top-8 left-8">
         <Link
-          href="/login"
+          href="/auth/login"
           className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg hover:bg-secondary/50 transition-colors text-sm font-medium"
         >
           ← Back

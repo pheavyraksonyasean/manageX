@@ -1,4 +1,4 @@
-import { CategoriesContent } from "@/components/categories";
+import { CategoriesContent } from "@/components/user/categories";
 
 export default function CategoriesPage() {
   return (

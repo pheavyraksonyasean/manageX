@@ -1,4 +1,4 @@
-import { DashboardHeader } from "@/components/dashboard/dashboard-header";
+import { DashboardHeader } from "@/components/user/dashboard/dashboard-header";
 import { AdminStatsSection } from "@/components/admin/dashboard/admin-stats-section";
 import { AdminBarChart } from "@/components/admin/dashboard/admin-bar-chart";
 import { SystemUsers } from "@/components/admin/dashboard/system-users";

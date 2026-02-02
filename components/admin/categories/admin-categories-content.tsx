@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { AdminCategoriesHeader } from "./admin-categories-header";
-import { CategoriesGrid } from "@/components/categories/categories-grid";
-import { Category } from "@/components/categories/category-card";
+import { CategoriesGrid } from "@/components/user/categories/categories-grid";
+import { Category } from "@/components/user/categories/category-card";
 import {
   CategoryTasksDialog,
   Task,
-} from "@/components/categories/category-tasks-dialog";
+} from "@/components/user/categories/category-tasks-dialog";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 // Mock tasks data - all users' tasks

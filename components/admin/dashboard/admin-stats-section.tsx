@@ -6,7 +6,7 @@ import {
   Users,
   TrendingUp,
 } from "lucide-react";
-import { StatCard } from "../../dashboard/stat-card";
+import { StatCard } from "../../user/dashboard/stat-card";
 
 interface AdminStatsSectionProps {
   userRole?: "admin" | "user";
