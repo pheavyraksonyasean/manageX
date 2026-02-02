@@ -1,7 +1,7 @@
 "use client";
 
 import { Menu, Plus } from "lucide-react";
-import { useSidebar } from "@/app/user/layout";
+import { useSidebar } from "@/contexts/sidebar-context";
 
 interface TasksHeaderProps {
   userName: string;

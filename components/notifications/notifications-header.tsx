@@ -1,7 +1,7 @@
 "use client";
 
 import { Menu, Bell, Trash2, CheckSquare } from "lucide-react";
-import { useSidebar } from "@/app/user/layout";
+import { useSidebar } from "@/contexts/sidebar-context";
 
 interface NotificationsHeaderProps {
   overdueCount: number;

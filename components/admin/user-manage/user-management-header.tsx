@@ -1,23 +1,17 @@
 "use client";
 
-import { Menu } from "lucide-react";
+import { Menu, Users } from "lucide-react";
 import { useSidebar } from "@/contexts/sidebar-context";
 
-interface CategoriesHeaderProps {
-  userName?: string;
-}
-
-export function CategoriesHeader({
-  userName = "Regular User",
-}: CategoriesHeaderProps) {
+export function UserManagementHeader() {
   const { toggleSidebar } = useSidebar();
 
   return (
     <div className="mb-8 flex items-start justify-between">
       <div>
-        <h1 className="text-4xl font-bold mb-2">Categories</h1>
+        <h1 className="text-4xl font-bold mb-2">Manage Users</h1>
         <p className="text-muted-foreground text-lg">
-          Organize your tasks with categories
+          Welcome back, Regular User
         </p>
       </div>
       <button

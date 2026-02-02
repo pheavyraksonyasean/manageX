@@ -4,12 +4,14 @@ interface CategoriesGridProps {
   categories: Category[];
   onDelete?: (categoryId: string) => void;
   onCategoryClick?: (category: Category) => void;
+  isAdminView?: boolean;
 }
 
 export function CategoriesGrid({
   categories,
   onDelete,
   onCategoryClick,
+  isAdminView = false,
 }: CategoriesGridProps) {
   if (categories.length === 0) {
     return (
@@ -32,6 +34,7 @@ export function CategoriesGrid({
             category={category}
             onDelete={onDelete}
             onClick={onCategoryClick}
+            isAdminView={isAdminView}
           />
         ))}
       </div>

@@ -6,11 +6,11 @@ import { SidebarContext } from "@/contexts/sidebar-context";
 
 export { useSidebar } from "@/contexts/sidebar-context";
 
-interface UserLayoutProps {
+interface AdminLayoutProps {
   children: React.ReactNode;
 }
 
-export default function UserLayout({ children }: UserLayoutProps) {
+export default function AdminLayout({ children }: AdminLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const toggleSidebar = () => setSidebarOpen((prev) => !prev);
@@ -23,7 +23,7 @@ export default function UserLayout({ children }: UserLayoutProps) {
         <Sidebar
           isOpen={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
-          userRole="user"
+          userRole="admin"
         />
         <main className="flex-1 overflow-auto">{children}</main>
       </div>

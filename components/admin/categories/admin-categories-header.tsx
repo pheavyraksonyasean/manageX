@@ -1,23 +1,25 @@
 "use client";
 
-import { Menu } from "lucide-react";
+import { Menu, ShieldCheck } from "lucide-react";
 import { useSidebar } from "@/contexts/sidebar-context";
 
-interface CategoriesHeaderProps {
-  userName?: string;
+interface AdminCategoriesHeaderProps {
+  totalCategories: number;
 }
 
-export function CategoriesHeader({
-  userName = "Regular User",
-}: CategoriesHeaderProps) {
+export function AdminCategoriesHeader({
+  totalCategories,
+}: AdminCategoriesHeaderProps) {
   const { toggleSidebar } = useSidebar();
 
   return (
     <div className="mb-8 flex items-start justify-between">
       <div>
-        <h1 className="text-4xl font-bold mb-2">Categories</h1>
+        <div className="flex items-center gap-3 mb-2">
+          <h1 className="text-4xl font-bold">All Categories</h1>
+        </div>
         <p className="text-muted-foreground text-lg">
-          Organize your tasks with categories
+          Viewing {totalCategories} categories from all users
         </p>
       </div>
       <button

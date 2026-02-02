@@ -11,16 +11,18 @@ interface CategoryCardProps {
   category: Category;
   onDelete?: (categoryId: string) => void;
   onClick?: (category: Category) => void;
+  isAdminView?: boolean;
 }
 
 export function CategoryCard({
   category,
   onDelete,
   onClick,
+  isAdminView = false,
 }: CategoryCardProps) {
   return (
     <div
-      className="bg-secondary/60 rounded-xl p-4 border border-border hover:border-muted-foreground flex items-center justify-between transition-colors group cursor-pointer"
+      className="bg-secondary/60 rounded-xl p-4 border border-border hover:border-primary/50 hover:bg-secondary/80 flex items-center justify-between transition-all cursor-pointer group"
       onClick={() => onClick?.(category)}
     >
       <div className="flex items-center gap-3">
@@ -34,15 +36,20 @@ export function CategoryCard({
         <span className="text-sm text-muted-foreground">
           {category.taskCount} Tasks
         </span>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete?.(category.id);
-          }}
-          className="p-1.5 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
+        <Eye className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+        {onDelete && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete?.(category.id);
+            }}
+            className={`p-1.5 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors ${
+              isAdminView ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+            }`}
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        )}
       </div>
     </div>
   );

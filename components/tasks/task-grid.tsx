@@ -6,9 +6,15 @@ interface TaskGridProps {
   tasks: Task[];
   onEdit?: (task: Task) => void;
   onDelete?: (taskId: string) => void;
+  isAdminView?: boolean;
 }
 
-export function TaskGrid({ tasks, onEdit, onDelete }: TaskGridProps) {
+export function TaskGrid({
+  tasks,
+  onEdit,
+  onDelete,
+  isAdminView = false,
+}: TaskGridProps) {
   if (tasks.length === 0) {
     return (
       <div className="bg-secondary/40 rounded-xl p-12 border border-border text-center">
@@ -28,6 +34,7 @@ export function TaskGrid({ tasks, onEdit, onDelete }: TaskGridProps) {
           task={task}
           onEdit={onEdit}
           onDelete={onDelete}
+          isAdminView={isAdminView}
         />
       ))}
     </div>

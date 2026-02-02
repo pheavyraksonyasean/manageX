@@ -8,6 +8,7 @@ import {
   Bell,
   LogOut,
   X,
+  Users,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -46,14 +47,18 @@ const mockTasks = [
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  userRole?: "admin" | "user";
 }
 
-export function Sidebar({ isOpen, onClose }: SidebarProps) {
+export function Sidebar({ isOpen, onClose, userRole = "user" }: SidebarProps) {
   const pathname = usePathname();
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const isActive = (path: string) => pathname === path;
+
+  // Determine base path based on user role
+  const basePath = userRole === "admin" ? "/admin" : "/user";
 
   return (
     <>
@@ -89,9 +94,9 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         {/* Navigation - Scrollable */}
         <nav className="flex-1 p-3 sm:p-4 space-y-1 sm:space-y-2 overflow-y-auto">
           <Link
-            href="/user/dashboard"
+            href={`${basePath}/dashboard`}
             className={`flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-colors ${
-              isActive("/user/dashboard")
+              isActive(`${basePath}/dashboard`)
                 ? "bg-primary text-primary-foreground"
                 : "text-foreground hover:bg-secondary"
             }`}
@@ -101,9 +106,9 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           </Link>
 
           <Link
-            href="/user/tasks"
+            href={`${basePath}/tasks`}
             className={`flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-colors ${
-              isActive("/user/tasks")
+              isActive(`${basePath}/tasks`)
                 ? "bg-primary text-primary-foreground"
                 : "text-foreground hover:bg-secondary"
             }`}
@@ -113,9 +118,9 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           </Link>
 
           <Link
-            href="/user/categories"
+            href={`${basePath}/categories`}
             className={`flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-colors ${
-              isActive("/user/categories")
+              isActive(`${basePath}/categories`)
                 ? "bg-primary text-primary-foreground"
                 : "text-foreground hover:bg-secondary"
             }`}
@@ -125,9 +130,9 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           </Link>
 
           <Link
-            href="/user/notifications"
+            href={`${basePath}/notifications`}
             className={`flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-colors ${
-              isActive("/user/notifications")
+              isActive(`${basePath}/notifications`)
                 ? "bg-primary text-primary-foreground"
                 : "text-foreground hover:bg-secondary"
             }`}
@@ -137,6 +142,21 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               Notifications
             </span>
           </Link>
+
+          {/* Admin-only Users menu */}
+          {userRole === "admin" && (
+            <Link
+              href={`${basePath}/users`}
+              className={`flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-colors ${
+                isActive(`${basePath}/users`)
+                  ? "bg-primary text-primary-foreground"
+                  : "text-foreground hover:bg-secondary"
+              }`}
+            >
+              <Users className="w-5 h-5" />
+              <span className="font-medium text-sm sm:text-base">Users</span>
+            </Link>
+          )}
 
           {/* Mini Calendar */}
           <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-border">

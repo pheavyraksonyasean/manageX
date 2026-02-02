@@ -6,7 +6,7 @@ import { RecentTasks } from "@/components/dashboard/recent-tasks";
 export default function DashboardPage() {
   return (
     <div className="p-8">
-      <DashboardHeader userName="Regular User" />
+      <DashboardHeader titleName="Dashboard" userName="Welcome, Regular User" />
       <StatsSection />
       <ChartsSection />
       <RecentTasks />

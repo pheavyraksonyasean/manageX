@@ -16,6 +16,7 @@ interface TaskCardProps {
   task: Task;
   onEdit?: (task: Task) => void;
   onDelete?: (taskId: string) => void;
+  isAdminView?: boolean;
 }
 
 const priorityColors = {
@@ -30,7 +31,12 @@ const statusColors = {
   completed: "bg-primary/20 text-primary",
 };
 
-export function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
+export function TaskCard({
+  task,
+  onEdit,
+  onDelete,
+  isAdminView = false,
+}: TaskCardProps) {
   return (
     <div className="bg-secondary/40 rounded-xl p-5 border border-border hover:border-muted-foreground flex flex-col transition-colors">
       {/* Title */}
@@ -67,21 +73,33 @@ export function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
       </div>
 
       {/* Actions */}
-      <div className="flex gap-2 mt-auto">
-        <button
-          onClick={() => onEdit?.(task)}
-          className="flex-1 flex items-center justify-center gap-2 bg-primary text-primary-foreground py-2.5 px-4 rounded-lg font-medium hover:bg-primary/90 transition-colors"
-        >
-          <Pencil className="w-4 h-4" />
-          Edit
-        </button>
-        <button
-          onClick={() => onDelete?.(task.id)}
-          className="p-2.5 bg-red-500/20 text-red-500 rounded-lg hover:bg-red-500/30 transition-colors"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
-      </div>
+      {isAdminView ? (
+        <div className="flex gap-2 mt-auto">
+          <button
+            onClick={() => onDelete?.(task.id)}
+            className="flex-1 flex items-center justify-center gap-2 bg-red-500/20 text-red-500 py-2.5 px-4 rounded-lg font-medium hover:bg-red-500/30 transition-colors"
+          >
+            <Trash2 className="w-4 h-4" />
+            Delete
+          </button>
+        </div>
+      ) : (
+        <div className="flex gap-2 mt-auto">
+          <button
+            onClick={() => onEdit?.(task)}
+            className="flex-1 flex items-center justify-center gap-2 bg-primary text-primary-foreground py-2.5 px-4 rounded-lg font-medium hover:bg-primary/90 transition-colors"
+          >
+            <Pencil className="w-4 h-4" />
+            Edit
+          </button>
+          <button
+            onClick={() => onDelete?.(task.id)}
+            className="p-2.5 bg-red-500/20 text-red-500 rounded-lg hover:bg-red-500/30 transition-colors"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
