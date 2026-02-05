@@ -1,35 +1,133 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ProfileHeader } from "./profile-header";
 import { ProfileInfoForm } from "./profile-info-form";
 import { ChangePasswordForm } from "./change-password-form";
+import { useAuth } from "@/contexts/auth-context";
 
-// Mock user data - in real app, this would come from auth context/API
-const mockUserData = {
-  firstName: "John",
-  lastName: "Doe",
-  email: "john.doe@example.com",
-  phone: "+1 234 567 8900",
-  bio: "Product designer and developer. Love creating beautiful and functional user experiences.",
-};
+interface UserData {
+  name: string;
+  email: string;
+}
 
 export function ProfileContent() {
-  const [userData, setUserData] = useState(mockUserData);
+  const { updateUser } = useAuth();
+  const [userData, setUserData] = useState<UserData>({
+    name: "",
+    email: "",
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const handleSaveProfile = (data: typeof mockUserData) => {
-    setUserData(data);
-    // In real app, you would call an API here
-    console.log("Profile saved:", data);
+  // Fetch user profile on mount
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await fetch("/api/user/profile");
+        const data = await response.json();
+
+        if (data.success) {
+          setUserData({
+            name: data.user.name,
+            email: data.user.email,
+          });
+        } else {
+          setError(data.message || "Failed to load profile");
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+        setError("Failed to load profile");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  const handleSaveProfile = async (data: UserData) => {
+    try {
+      const response = await fetch("/api/user/profile", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        const updatedData = {
+          name: result.user.name,
+          email: result.user.email,
+        };
+        setUserData(updatedData);
+
+        // Update auth context so sidebar reflects changes immediately
+        updateUser({
+          name: result.user.name,
+          email: result.user.email,
+        });
+
+        return { success: true, message: "Profile updated successfully" };
+      } else {
+        return {
+          success: false,
+          message: result.message || "Failed to update profile",
+        };
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      return { success: false, message: "Failed to update profile" };
+    }
   };
 
-  const handleChangePassword = (
+  const handleChangePassword = async (
     currentPassword: string,
     newPassword: string,
   ) => {
-    // In real app, you would call an API here
-    console.log("Password change requested");
+    try {
+      const response = await fetch("/api/user/profile/password", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        return { success: true, message: "Password changed successfully" };
+      } else {
+        return {
+          success: false,
+          message: result.message || "Failed to change password",
+        };
+      }
+    } catch (error) {
+      console.error("Error changing password:", error);
+      return { success: false, message: "Failed to change password" };
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <p className="text-muted-foreground">Loading profile...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

@@ -1,70 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { TasksHeader } from "./tasks-header";
 import { TaskFilters } from "./task-filters";
 import { TaskGrid } from "./task-grid";
 import { TaskDialog } from "./task-dialog";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Task } from "./task-card";
-
-// Mock data - replace with actual data fetching
-const mockTasks: Task[] = [
-  {
-    id: "1",
-    title: "Complete project proposal",
-    description: "Draft and finalize the Q1 project proposal for client review",
-    priority: "high",
-    status: "in progress",
-    category: "Work",
-    dueDate: "Jan 30, 2026",
-  },
-  {
-    id: "2",
-    title: "Complete project proposal",
-    description: "Draft and finalize the Q1 project proposal for client review",
-    priority: "high",
-    status: "in progress",
-    category: "Work",
-    dueDate: "Jan 30, 2026",
-  },
-  {
-    id: "3",
-    title: "Complete project proposal",
-    description: "Draft and finalize the Q1 project proposal for client review",
-    priority: "high",
-    status: "in progress",
-    category: "Work",
-    dueDate: "Jan 30, 2026",
-  },
-  {
-    id: "4",
-    title: "Complete project proposal",
-    description: "Draft and finalize the Q1 project proposal for client review",
-    priority: "high",
-    status: "in progress",
-    category: "Work",
-    dueDate: "Jan 30, 2026",
-  },
-  {
-    id: "5",
-    title: "Complete project proposal",
-    description: "Draft and finalize the Q1 project proposal for client review",
-    priority: "high",
-    status: "in progress",
-    category: "Work",
-    dueDate: "Jan 30, 2026",
-  },
-  {
-    id: "6",
-    title: "Complete project proposal",
-    description: "Draft and finalize the Q1 project proposal for client review",
-    priority: "high",
-    status: "in progress",
-    category: "Work",
-    dueDate: "Jan 30, 2026",
-  },
-];
 
 interface TasksContentProps {
   userName?: string;
@@ -74,11 +16,35 @@ export function TasksContent({ userName = "Regular User" }: TasksContentProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
-  const [tasks, setTasks] = useState<Task[]>(mockTasks);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
+
+  // Fetch tasks from API
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  const fetchTasks = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/user/tasks");
+      const data = await response.json();
+
+      if (response.ok) {
+        setTasks(data.tasks || []);
+      } else {
+        console.error("Failed to fetch tasks:", data.error);
+      }
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Filter tasks based on search and filters
   const filteredTasks = useMemo(() => {
@@ -112,26 +78,68 @@ export function TasksContent({ userName = "Regular User" }: TasksContentProps) {
     setDeleteConfirmOpen(true);
   };
 
-  const confirmDeleteTask = () => {
+  const confirmDeleteTask = async () => {
     if (taskToDelete) {
-      setTasks((prev) => prev.filter((task) => task.id !== taskToDelete));
-      setTaskToDelete(null);
+      try {
+        const response = await fetch(`/api/user/tasks/${taskToDelete}`, {
+          method: "DELETE",
+        });
+
+        if (response.ok) {
+          setTasks((prev) => prev.filter((task) => task.id !== taskToDelete));
+          setTaskToDelete(null);
+        } else {
+          const data = await response.json();
+          console.error("Failed to delete task:", data.error);
+          alert("Failed to delete task. Please try again.");
+        }
+      } catch (error) {
+        console.error("Error deleting task:", error);
+        alert("An error occurred while deleting the task.");
+      }
     }
   };
 
-  const handleSubmitTask = (taskData: Omit<Task, "id">) => {
-    if (editingTask) {
-      setTasks((prev) =>
-        prev.map((task) =>
-          task.id === editingTask.id ? { ...task, ...taskData } : task,
-        ),
-      );
-    } else {
-      const newTask: Task = {
-        ...taskData,
-        id: Date.now().toString(),
-      };
-      setTasks((prev) => [newTask, ...prev]);
+  const handleSubmitTask = async (taskData: Omit<Task, "id">) => {
+    try {
+      if (editingTask) {
+        // Update existing task
+        const response = await fetch(`/api/user/tasks/${editingTask.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(taskData),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setTasks((prev) =>
+            prev.map((task) => (task.id === editingTask.id ? data.task : task)),
+          );
+        } else {
+          console.error("Failed to update task:", data.error);
+          alert("Failed to update task. Please try again.");
+        }
+      } else {
+        // Create new task
+        const response = await fetch("/api/user/tasks", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(taskData),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setTasks((prev) => [data.task, ...prev]);
+        } else {
+          console.error("Failed to create task:", data.error);
+          alert("Failed to create task. Please try again.");
+        }
+      }
+    } catch (error) {
+      console.error("Error submitting task:", error);
+      alert("An error occurred. Please try again.");
     }
   };
 
@@ -148,11 +156,17 @@ export function TasksContent({ userName = "Regular User" }: TasksContentProps) {
         onPriorityChange={setPriorityFilter}
       />
 
-      <TaskGrid
-        tasks={filteredTasks}
-        onEdit={handleEditTask}
-        onDelete={handleDeleteTask}
-      />
+      {loading ? (
+        <div className="flex items-center justify-center py-20">
+          <div className="text-muted-foreground">Loading tasks...</div>
+        </div>
+      ) : (
+        <TaskGrid
+          tasks={filteredTasks}
+          onEdit={handleEditTask}
+          onDelete={handleDeleteTask}
+        />
+      )}
 
       <TaskDialog
         open={isDialogOpen}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -13,19 +14,75 @@ import {
   Cell,
 } from "recharts";
 
-const barChartData = [
-  { name: "High", value: 2 },
-  { name: "Medium", value: 1 },
-  { name: "Low", value: 1 },
-];
-
-const pieChartData = [
-  { name: "To Do", value: 2, color: "#77ABAE" },
-  { name: "In Progress", value: 1, color: "#31363F" },
-  { name: "Completed", value: 1, color: "#77ABAE" },
-];
-
 export function ChartsSection() {
+  const [barChartData, setBarChartData] = useState([
+    { name: "High", value: 0 },
+    { name: "Medium", value: 0 },
+    { name: "Low", value: 0 },
+  ]);
+  const [pieChartData, setPieChartData] = useState([
+    { name: "To Do", value: 0, color: "#77ABAE" },
+    { name: "In Progress", value: 0, color: "#31363F" },
+    { name: "Completed", value: 0, color: "#77ABAE" },
+  ]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchChartData();
+  }, []);
+
+  const fetchChartData = async () => {
+    try {
+      const response = await fetch("/api/user/dashboard/stats");
+      const data = await response.json();
+
+      if (response.ok) {
+        // Update bar chart data (priority)
+        setBarChartData([
+          { name: "High", value: data.priorityStats.high },
+          { name: "Medium", value: data.priorityStats.medium },
+          { name: "Low", value: data.priorityStats.low },
+        ]);
+
+        // Update pie chart data (status)
+        setPieChartData([
+          { name: "To Do", value: data.statusStats.todo, color: "#77ABAE" },
+          {
+            name: "In Progress",
+            value: data.statusStats.inProgress,
+            color: "#FFC107",
+          },
+          {
+            name: "Completed",
+            value: data.statusStats.completed,
+            color: "#4CAF50",
+          },
+        ]);
+      } else {
+        console.error("Failed to fetch chart data:", data.error);
+      }
+    } catch (error) {
+      console.error("Error fetching chart data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {[...Array(2)].map((_, i) => (
+          <div
+            key={i}
+            className="border border-border rounded-xl p-6 bg-secondary/40 animate-pulse"
+          >
+            <div className="h-80"></div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
       {/* Bar Chart */}

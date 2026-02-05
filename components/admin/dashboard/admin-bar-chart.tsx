@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -10,18 +11,58 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const barChartData = [
-  { name: "To Do", value: 0.5 },
-  { name: "In Progress", value: 2 },
-  { name: "Completed", value: 1 },
-];
+interface TasksByStatus {
+  todo: number;
+  inProgress: number;
+  completed: number;
+}
 
 export function AdminBarChart() {
+  const [chartData, setChartData] = useState([
+    { name: "To Do", value: 0 },
+    { name: "In Progress", value: 0 },
+    { name: "Completed", value: 0 },
+  ]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("/api/admin/dashboard");
+        if (!response.ok) throw new Error("Failed to fetch data");
+
+        const data = await response.json();
+        if (data.success) {
+          setChartData([
+            { name: "To Do", value: data.tasksByStatus.todo },
+            { name: "In Progress", value: data.tasksByStatus.inProgress },
+            { name: "Completed", value: data.tasksByStatus.completed },
+          ]);
+        }
+      } catch (error) {
+        console.error("Error fetching chart data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="border border-border rounded-xl p-6 bg-secondary/40 mb-8">
+        <h3 className="text-lg font-semibold mb-6">Tasks by Status</h3>
+        <div className="h-[300px] bg-secondary/20 animate-pulse rounded-lg" />
+      </div>
+    );
+  }
+
   return (
     <div className="border border-border rounded-xl p-6 bg-secondary/40 mb-8">
-      <h3 className="text-lg font-semibold mb-6">Tasks by priorities</h3>
+      <h3 className="text-lg font-semibold mb-6">Tasks by Status</h3>
       <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={barChartData}>
+        <BarChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" stroke="#31363F" />
           <XAxis dataKey="name" stroke="#EEEEEE" />
           <YAxis stroke="#EEEEEE" />

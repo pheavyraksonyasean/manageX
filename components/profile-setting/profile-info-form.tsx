@@ -1,25 +1,41 @@
 "use client";
 
-import { useState } from "react";
-import { User, Mail, Phone, Save, Camera } from "lucide-react";
+import { useState, useEffect } from "react";
+import {
+  User,
+  Mail,
+  Phone,
+  Save,
+  Camera,
+  CheckCircle,
+  XCircle,
+} from "lucide-react";
 
 interface ProfileData {
-  firstName: string;
-  lastName: string;
+  name: string;
   email: string;
-  phone: string;
-  bio: string;
+  phone?: string;
+  bio?: string;
 }
 
 interface ProfileInfoFormProps {
   initialData: ProfileData;
-  onSave: (data: ProfileData) => void;
+  onSave: (data: ProfileData) => Promise<{ success: boolean; message: string }>;
 }
 
 export function ProfileInfoForm({ initialData, onSave }: ProfileInfoFormProps) {
   const [formData, setFormData] = useState<ProfileData>(initialData);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+
+  // Update form when initialData changes
+  useEffect(() => {
+    setFormData(initialData);
+  }, [initialData]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -31,18 +47,34 @@ export function ProfileInfoForm({ initialData, onSave }: ProfileInfoFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
+    setMessage(null);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const result = await onSave(formData);
 
-    onSave(formData);
     setIsSaving(false);
-    setIsEditing(false);
+
+    if (result.success) {
+      setMessage({ type: "success", text: result.message });
+      setIsEditing(false);
+      setTimeout(() => setMessage(null), 3000);
+    } else {
+      setMessage({ type: "error", text: result.message });
+    }
   };
 
   const handleCancel = () => {
     setFormData(initialData);
     setIsEditing(false);
+    setMessage(null);
+  };
+
+  // Get initials from name
+  const getInitials = () => {
+    const names = formData.name.split(" ");
+    if (names.length >= 2) {
+      return names[0].charAt(0) + names[names.length - 1].charAt(0);
+    }
+    return formData.name.charAt(0) + (formData.name.charAt(1) || "");
   };
 
   return (
@@ -61,60 +93,65 @@ export function ProfileInfoForm({ initialData, onSave }: ProfileInfoFormProps) {
         )}
       </div>
 
+      {/* Success/Error Message */}
+      {message && (
+        <div
+          className={`mb-4 p-3 rounded-lg flex items-center gap-2 text-sm ${
+            message.type === "success"
+              ? "bg-green-500/10 text-green-500 border border-green-500/20"
+              : "bg-red-500/10 text-red-500 border border-red-500/20"
+          }`}
+        >
+          {message.type === "success" ? (
+            <CheckCircle className="w-4 h-4" />
+          ) : (
+            <XCircle className="w-4 h-4" />
+          )}
+          {message.text}
+        </div>
+      )}
+
       {/* Avatar Section */}
       <div className="flex flex-col sm:flex-row items-center gap-4 mb-6 pb-6 border-b border-border">
         <div className="relative">
           <div className="w-20 h-20 sm:w-24 sm:h-24 bg-primary rounded-full flex items-center justify-center">
-            <span className="text-2xl sm:text-3xl font-bold text-primary-foreground">
-              {formData.firstName.charAt(0)}
-              {formData.lastName.charAt(0)}
+            <span className="text-2xl sm:text-3xl font-bold text-primary-foreground uppercase">
+              {getInitials()}
             </span>
           </div>
           {isEditing && (
-            <button className="absolute bottom-0 right-0 w-8 h-8 bg-card border border-border rounded-full flex items-center justify-center hover:bg-secondary transition-colors">
+            <button
+              type="button"
+              className="absolute bottom-0 right-0 w-8 h-8 bg-card border border-border rounded-full flex items-center justify-center hover:bg-secondary transition-colors"
+            >
               <Camera className="w-4 h-4 text-foreground" />
             </button>
           )}
         </div>
         <div className="text-center sm:text-left">
           <h3 className="text-lg font-semibold text-foreground">
-            {formData.firstName} {formData.lastName}
+            {formData.name || "User"}
           </h3>
           <p className="text-sm text-muted-foreground">{formData.email}</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Name Fields */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-foreground flex items-center gap-2">
-              <User className="w-4 h-4 text-muted-foreground" />
-              First Name
-            </label>
-            <input
-              type="text"
-              name="firstName"
-              value={formData.firstName}
-              onChange={handleChange}
-              disabled={!isEditing}
-              className="w-full bg-background border border-border rounded-lg py-2 sm:py-2.5 px-3 sm:px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-foreground flex items-center gap-2">
-              <User className="w-4 h-4 text-muted-foreground" />
-              Last Name
-            </label>
-            <input
-              type="text"
-              name="lastName"
-              value={formData.lastName}
-              onChange={handleChange}
-              disabled={!isEditing}
-              className="w-full bg-background border border-border rounded-lg py-2 sm:py-2.5 px-3 sm:px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-            />
-          </div>
+        {/* Name Field */}
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium text-foreground flex items-center gap-2">
+            <User className="w-4 h-4 text-muted-foreground" />
+            Full Name
+          </label>
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            disabled={!isEditing}
+            required
+            className="w-full bg-background border border-border rounded-lg py-2 sm:py-2.5 px-3 sm:px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+          />
         </div>
 
         {/* Email */}
@@ -129,6 +166,7 @@ export function ProfileInfoForm({ initialData, onSave }: ProfileInfoFormProps) {
             value={formData.email}
             onChange={handleChange}
             disabled={!isEditing}
+            required
             className="w-full bg-background border border-border rounded-lg py-2 sm:py-2.5 px-3 sm:px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
           />
         </div>
@@ -170,7 +208,8 @@ export function ProfileInfoForm({ initialData, onSave }: ProfileInfoFormProps) {
             <button
               type="button"
               onClick={handleCancel}
-              className="flex-1 sm:flex-none px-4 py-2 rounded-lg border border-border text-sm font-medium text-foreground hover:bg-secondary transition-colors"
+              disabled={isSaving}
+              className="flex-1 sm:flex-none px-4 py-2 rounded-lg border border-border text-sm font-medium text-foreground hover:bg-secondary transition-colors disabled:opacity-60"
             >
               Cancel
             </button>

@@ -11,38 +11,11 @@ import {
   Users,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { MiniCalendar } from "./mini-calendar";
 import { DateTasks } from "./date-tasks";
 import { ProfileDialog } from "@/components/profile-setting/profile-dialog";
-
-// Mock tasks - in real app, this would come from a shared state/context
-const mockTasks = [
-  {
-    id: "1",
-    title: "Complete project proposal",
-    dueDate: "Jan 30, 2026",
-    priority: "high" as const,
-  },
-  {
-    id: "2",
-    title: "Review team updates",
-    dueDate: "Jan 28, 2026",
-    priority: "medium" as const,
-  },
-  {
-    id: "3",
-    title: "Prepare presentation",
-    dueDate: "Jan 28, 2026",
-    priority: "high" as const,
-  },
-  {
-    id: "4",
-    title: "Team meeting",
-    dueDate: "Jan 29, 2026",
-    priority: "low" as const,
-  },
-];
+import { useAuth } from "@/contexts/auth-context";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -52,6 +25,8 @@ interface SidebarProps {
 
 export function Sidebar({ isOpen, onClose, userRole = "user" }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, logout } = useAuth();
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
@@ -59,6 +34,15 @@ export function Sidebar({ isOpen, onClose, userRole = "user" }: SidebarProps) {
 
   // Determine base path based on user role
   const basePath = userRole === "admin" ? "/admin" : "/user";
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      router.push("/auth/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   return (
     <>
@@ -161,11 +145,11 @@ export function Sidebar({ isOpen, onClose, userRole = "user" }: SidebarProps) {
           {/* Mini Calendar */}
           <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-border">
             <MiniCalendar
-              tasks={mockTasks}
               selectedDate={selectedDate || undefined}
               onDateSelect={(date) => setSelectedDate(date)}
+              userRole={userRole}
             />
-            <DateTasks date={selectedDate} tasks={mockTasks} />
+            <DateTasks date={selectedDate} userRole={userRole} />
           </div>
         </nav>
 
@@ -182,9 +166,11 @@ export function Sidebar({ isOpen, onClose, userRole = "user" }: SidebarProps) {
                 <div className="relative">
                   <div
                     className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center text-lg sm:text-xl ring-2 ring-primary/30 ring-offset-2 ring-offset-card shadow-lg group-hover:ring-primary/50 transition-all duration-200"
-                    style={{ backgroundColor: "#FF6B6B" }}
+                    style={{
+                      backgroundColor: user?.emojiBackground || "#FF6B6B",
+                    }}
                   >
-                    😊
+                    {user?.emoji || "😊"}
                   </div>
                   {/* Online status indicator */}
                   <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-card"></div>
@@ -193,10 +179,10 @@ export function Sidebar({ isOpen, onClose, userRole = "user" }: SidebarProps) {
                 {/* User info */}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm sm:text-base font-semibold truncate text-foreground group-hover:text-primary transition-colors">
-                    Username
+                    {user?.name || "User"}
                   </p>
                   <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
-                    username@gmail.com
+                    {user?.email || "user@email.com"}
                   </p>
                 </div>
 
@@ -221,7 +207,10 @@ export function Sidebar({ isOpen, onClose, userRole = "user" }: SidebarProps) {
 
             {/* Logout button - integrated into card */}
             <div className="px-3 sm:px-4 pb-3 sm:pb-4">
-              <button className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-all duration-200 border border-red-500/20">
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-all duration-200 border border-red-500/20"
+              >
                 <LogOut className="w-4 h-4" />
                 <span className="font-medium text-xs sm:text-sm">Log Out</span>
               </button>

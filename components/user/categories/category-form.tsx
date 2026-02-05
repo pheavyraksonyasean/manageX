@@ -1,27 +1,31 @@
 "use client";
 
 import { useState } from "react";
-import { Check } from "lucide-react";
+import { Check, Plus, Sparkles } from "lucide-react";
 
 interface CategoryFormProps {
   onSubmit: (name: string, color: string) => void;
 }
 
 const colorOptions = [
-  "#9b87f5", // Purple (light)
-  "#7c3aed", // Purple (dark)
-  "#06b6d4", // Cyan
-  "#f87171", // Red
-  "#ec4899", // Pink
-  "#10b981", // Green
-  "#f59e0b", // Amber
-  "#a855f7", // Violet
-  "#f472b6", // Pink (light)
+  { color: "#9b87f5", name: "Purple" },
+  { color: "#7c3aed", name: "Deep Purple" },
+  { color: "#06b6d4", name: "Cyan" },
+  { color: "#f87171", name: "Red" },
+  { color: "#ec4899", name: "Pink" },
+  { color: "#10b981", name: "Green" },
+  { color: "#f59e0b", name: "Amber" },
+  { color: "#a855f7", name: "Violet" },
+  { color: "#f472b6", name: "Rose" },
+  { color: "#3b82f6", name: "Blue" },
+  { color: "#ef4444", name: "Crimson" },
+  { color: "#14b8a6", name: "Teal" },
 ];
 
 export function CategoryForm({ onSubmit }: CategoryFormProps) {
   const [name, setName] = useState("");
-  const [selectedColor, setSelectedColor] = useState(colorOptions[0]);
+  const [selectedColor, setSelectedColor] = useState(colorOptions[0].color);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const handleSubmit = () => {
     if (!name.trim()) return;
@@ -29,52 +33,100 @@ export function CategoryForm({ onSubmit }: CategoryFormProps) {
     setName("");
   };
 
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSubmit();
+    }
+  };
+
   return (
-    <div className="bg-secondary/40 rounded-xl p-4 sm:p-6 border border-border mb-6">
-      <h3 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4">
-        Create new Category
-      </h3>
+    <div className="bg-gradient-to-br from-secondary/60 to-secondary/30 rounded-2xl p-5 sm:p-6 border border-border/50 backdrop-blur-sm mb-6">
+      <div className="flex items-center gap-2 mb-4">
+        <div className="p-2 bg-primary/10 rounded-lg">
+          <Sparkles className="w-5 h-5 text-primary" />
+        </div>
+        <div>
+          <h3 className="text-lg font-bold text-foreground">
+            Create New Category
+          </h3>
+          <p className="text-xs text-muted-foreground">
+            Organize your tasks efficiently
+          </p>
+        </div>
+      </div>
 
       <div className="space-y-4">
         {/* Category Name Input */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-muted-foreground">
+          <label className="text-sm font-medium text-foreground flex items-center gap-2">
             Category Name
+            <span className="text-red-500">*</span>
           </label>
 
-          {/* Mobile: Stack vertically, Desktop: Horizontal */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-            <input
-              type="text"
-              placeholder="e.g., Work, Personal, Health"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="flex-1 bg-background border border-border rounded-lg py-2 sm:py-2.5 px-3 sm:px-4 text-sm sm:text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
-            />
+          <input
+            type="text"
+            placeholder="e.g., Work, Personal, Health, Finance..."
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onKeyPress={handleKeyPress}
+            className="w-full bg-background/80 border border-border/50 rounded-xl py-3 px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
+          />
+        </div>
 
-            {/* Color Selection Row */}
-            <div className="flex items-center gap-3 sm:gap-4">
-              {/* Selected Color Preview */}
+        {/* Color Selection */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-foreground">
+            Choose Color
+          </label>
+
+          <div className="flex items-center gap-3 flex-wrap">
+            {/* Selected Color Preview */}
+            <div className="relative group">
               <div
-                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-white/20 flex-shrink-0"
+                className="absolute inset-0 rounded-xl blur-md opacity-50 group-hover:opacity-70 transition-opacity"
                 style={{ backgroundColor: selectedColor }}
               />
+              <div
+                className="relative w-12 h-12 rounded-xl border-2 border-white/30 flex-shrink-0 shadow-lg transition-transform group-hover:scale-105"
+                style={{ backgroundColor: selectedColor }}
+              >
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/20 to-transparent" />
+              </div>
+            </div>
 
-              {/* Color Options - Scrollable on mobile */}
-              <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-hide">
-                {colorOptions.map((color) => (
+            {/* Color Options */}
+            <div className="flex items-center gap-2 flex-wrap">
+              {colorOptions
+                .slice(0, isExpanded ? colorOptions.length : 6)
+                .map((option) => (
                   <button
-                    key={color}
-                    onClick={() => setSelectedColor(color)}
-                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-transform hover:scale-110 flex-shrink-0"
-                    style={{ backgroundColor: color }}
+                    key={option.color}
+                    onClick={() => setSelectedColor(option.color)}
+                    className="relative w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:scale-110 group"
+                    style={{ backgroundColor: option.color }}
+                    title={option.name}
                   >
-                    {selectedColor === color && (
-                      <Check className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                    {selectedColor === option.color && (
+                      <div className="absolute inset-0 rounded-lg ring-2 ring-offset-2 ring-offset-secondary ring-white" />
                     )}
+                    {selectedColor === option.color && (
+                      <Check className="w-4 h-4 text-white relative z-10 drop-shadow" />
+                    )}
+                    <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-white/20 to-transparent" />
                   </button>
                 ))}
-              </div>
+
+              {/* Show More/Less Button */}
+              {colorOptions.length > 6 && (
+                <button
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  className="w-9 h-9 rounded-lg bg-secondary/50 border border-border/50 hover:bg-secondary transition-colors flex items-center justify-center"
+                >
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {isExpanded ? "−" : "+"}
+                  </span>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -82,9 +134,11 @@ export function CategoryForm({ onSubmit }: CategoryFormProps) {
         {/* Add Button */}
         <button
           onClick={handleSubmit}
-          className="w-full sm:w-auto bg-primary text-primary-foreground py-2 sm:py-2.5 px-6 rounded-lg text-sm sm:text-base font-medium hover:bg-primary/90 transition-colors"
+          disabled={!name.trim()}
+          className="w-full sm:w-auto bg-gradient-to-r from-primary to-primary/80 text-primary-foreground py-3 px-6 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-primary/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none flex items-center justify-center gap-2 group"
         >
-          Add category
+          <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform" />
+          Add Category
         </button>
       </div>
     </div>

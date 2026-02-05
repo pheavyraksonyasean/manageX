@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { UserManagementHeader } from ".././user-manage/user-management-header";
 import { UserStats } from ".././user-manage/user-stats";
 import { UserList } from "./user-list";
@@ -13,43 +13,45 @@ interface User {
   tasksCount: number;
 }
 
-// Mock data - replace with real data from your backend
-const mockUsers: User[] = [
-  {
-    id: "1",
-    name: "admin user",
-    email: "admin24@gmail.com",
-    role: "admin",
-    tasksCount: 0,
-  },
-  {
-    id: "2",
-    name: "use",
-    email: "bdmigergerru24@gmail.com",
-    role: "user",
-    tasksCount: 0,
-  },
-  {
-    id: "3",
-    name: "use",
-    email: "bdmigergerru24@gmail.com",
-    role: "user",
-    tasksCount: 0,
-  },
-  {
-    id: "4",
-    name: "user",
-    email: "test@gmail.com",
-    role: "user",
-    tasksCount: 0,
-  },
-];
-
 export function UserManagementContent() {
-  const [users] = useState<User[]>(mockUsers);
+  const [users, setUsers] = useState<User[]>([]);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [regularUsers, setRegularUsers] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-  const totalUsers = users.length;
-  const regularUsers = users.filter((u) => u.role === "user").length;
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch("/api/admin/users");
+        if (!response.ok) {
+          throw new Error("Failed to fetch users");
+        }
+        const data = await response.json();
+        if (data.success) {
+          setUsers(data.users);
+          setTotalUsers(data.totalUsers);
+          setRegularUsers(data.regularUsers);
+        }
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  if (loading) {
+    return (
+      <>
+        <UserManagementHeader />
+        <div className="flex items-center justify-center py-12">
+          <p className="text-gray-500">Loading users...</p>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

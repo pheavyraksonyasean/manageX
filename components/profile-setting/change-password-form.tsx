@@ -4,7 +4,10 @@ import { useState } from "react";
 import { Lock, Eye, EyeOff, Shield, Check } from "lucide-react";
 
 interface ChangePasswordFormProps {
-  onSubmit: (currentPassword: string, newPassword: string) => void;
+  onSubmit: (
+    currentPassword: string,
+    newPassword: string,
+  ) => Promise<{ success: boolean; message: string }>;
 }
 
 export function ChangePasswordForm({ onSubmit }: ChangePasswordFormProps) {
@@ -60,30 +63,31 @@ export function ChangePasswordForm({ onSubmit }: ChangePasswordFormProps) {
       return;
     }
 
+    if (newPassword.length < 6) {
+      setError("New password must be at least 6 characters");
+      return;
+    }
+
     if (newPassword !== confirmPassword) {
       setError("New passwords do not match");
       return;
     }
 
-    if (passwordStrength < 3) {
-      setError("Please choose a stronger password");
-      return;
-    }
-
     setIsSubmitting(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    const result = await onSubmit(currentPassword, newPassword);
 
-    onSubmit(currentPassword, newPassword);
     setIsSubmitting(false);
-    setSuccess(true);
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
 
-    // Clear success message after 3 seconds
-    setTimeout(() => setSuccess(false), 3000);
+    if (result.success) {
+      setSuccess(true);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setTimeout(() => setSuccess(false), 3000);
+    } else {
+      setError(result.message);
+    }
   };
 
   return (

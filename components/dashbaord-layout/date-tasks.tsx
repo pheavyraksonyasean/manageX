@@ -1,44 +1,65 @@
 "use client";
 
-import { format, isSameDay, parseISO } from "date-fns";
+import { useState, useEffect } from "react";
+import { format } from "date-fns";
 import { Calendar } from "lucide-react";
 
 interface Task {
-  id: string;
+  _id: string;
   title: string;
   dueDate: string;
-  priority?: "low" | "medium" | "high";
+  priority: "low" | "medium" | "high";
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+  };
 }
 
 interface DateTasksProps {
   date: Date | null;
-  tasks: Task[];
+  userRole?: "admin" | "user";
 }
 
 const priorityColors = {
   low: "bg-green-500",
-  medium: "bg-yellow-500",
+  medium: "bg-amber-500",
   high: "bg-red-500",
 };
 
-export function DateTasks({ date, tasks }: DateTasksProps) {
-  if (!date) return null;
+export function DateTasks({ date, userRole = "user" }: DateTasksProps) {
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const dateTasks = tasks.filter((task) => {
-    try {
-      // Try parsing different date formats
-      let taskDate: Date;
-      if (task.dueDate.includes(",")) {
-        // Format: "Jan 30, 2026"
-        taskDate = new Date(task.dueDate);
-      } else {
-        taskDate = parseISO(task.dueDate);
-      }
-      return isSameDay(taskDate, date);
-    } catch {
-      return false;
+  useEffect(() => {
+    if (!date) {
+      setTasks([]);
+      return;
     }
-  });
+
+    const fetchDateTasks = async () => {
+      setLoading(true);
+      try {
+        const dateStr = format(date, "yyyy-MM-dd");
+        const apiPath =
+          userRole === "admin" ? "/api/admin/calendar" : "/api/user/calendar";
+        const response = await fetch(`${apiPath}/${dateStr}`);
+        const data = await response.json();
+
+        if (data.success) {
+          setTasks(data.tasks || []);
+        }
+      } catch (error) {
+        console.error("Failed to fetch date tasks:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDateTasks();
+  }, [date, userRole]);
+
+  if (!date) return null;
 
   return (
     <div className="mt-3">
@@ -49,25 +70,32 @@ export function DateTasks({ date, tasks }: DateTasksProps) {
         </span>
       </div>
 
-      {dateTasks.length === 0 ? (
+      {loading ? (
+        <p className="text-xs text-muted-foreground/60 pl-5">Loading...</p>
+      ) : tasks.length === 0 ? (
         <p className="text-xs text-muted-foreground/60 pl-5">No tasks</p>
       ) : (
         <div className="space-y-1.5 pl-1">
-          {dateTasks.slice(0, 3).map((task) => (
-            <div key={task.id} className="flex items-center gap-2 text-xs">
-              <span
-                className={`w-1.5 h-1.5 rounded-full ${
-                  task.priority ? priorityColors[task.priority] : "bg-primary"
-                }`}
-              />
-              <span className="text-foreground truncate flex-1">
-                {task.title}
-              </span>
+          {tasks.slice(0, 3).map((task) => (
+            <div key={task._id} className="flex flex-col gap-0.5 text-xs">
+              <div className="flex items-center gap-2">
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${priorityColors[task.priority]}`}
+                />
+                <span className="text-foreground truncate flex-1">
+                  {task.title}
+                </span>
+              </div>
+              {userRole === "admin" && task.user && (
+                <span className="text-muted-foreground/70 text-[10px] pl-3.5 truncate">
+                  {task.user.name}
+                </span>
+              )}
             </div>
           ))}
-          {dateTasks.length > 3 && (
+          {tasks.length > 3 && (
             <p className="text-xs text-muted-foreground pl-3.5">
-              +{dateTasks.length - 3} more
+              +{tasks.length - 3} more
             </p>
           )}
         </div>

@@ -1,77 +1,43 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { AdminTasksHeader } from ".././tasks/admin-tasks-header";
 import { TaskFilters } from "@/components/tasks/task-filters";
 import { TaskGrid } from "@/components/tasks/task-grid";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Task } from "@/components/tasks/task-card";
 
-// Mock data with multiple users' tasks
-const mockAllUsersTasks: Task[] = [
-  {
-    id: "1",
-    title: "Complete project proposal",
-    description: "Draft and finalize the Q1 project proposal for client review",
-    priority: "high",
-    status: "in progress",
-    category: "Work",
-    dueDate: "Jan 30, 2026",
-  },
-  {
-    id: "2",
-    title: "Team meeting preparation",
-    description: "Prepare agenda and materials for team meeting",
-    priority: "medium",
-    status: "todo",
-    category: "Work",
-    dueDate: "Feb 5, 2026",
-  },
-  {
-    id: "3",
-    title: "Code review",
-    description: "Review pull requests from team members",
-    priority: "high",
-    status: "in progress",
-    category: "Development",
-    dueDate: "Feb 3, 2026",
-  },
-  {
-    id: "4",
-    title: "Update documentation",
-    description: "Update API documentation with new endpoints",
-    priority: "low",
-    status: "completed",
-    category: "Documentation",
-    dueDate: "Jan 28, 2026",
-  },
-  {
-    id: "5",
-    title: "Bug fixes",
-    description: "Fix reported bugs in production",
-    priority: "high",
-    status: "in progress",
-    category: "Development",
-    dueDate: "Feb 4, 2026",
-  },
-  {
-    id: "6",
-    title: "Design review",
-    description: "Review new UI designs for mobile app",
-    priority: "medium",
-    status: "todo",
-    category: "Design",
-    dueDate: "Feb 6, 2026",
-  },
-];
-
 export function AdminTasksContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
-  const [tasks, setTasks] = useState<Task[]>(mockAllUsersTasks); // Admin can delete tasks
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(true);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
+
+  // Fetch all tasks from all users
+  useEffect(() => {
+    fetchAllTasks();
+  }, []);
+
+  const fetchAllTasks = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/admin/tasks");
+      const data = await response.json();
+
+      if (response.ok) {
+        setTasks(data.tasks || []);
+      } else {
+        console.error("Failed to fetch tasks:", data.error);
+      }
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Filter tasks based on search and filters
   const filteredTasks = useMemo(() => {
@@ -96,10 +62,25 @@ export function AdminTasksContent() {
     setDeleteConfirmOpen(true);
   };
 
-  const confirmDeleteTask = () => {
+  const confirmDeleteTask = async () => {
     if (taskToDelete) {
-      setTasks((prev) => prev.filter((task) => task.id !== taskToDelete));
-      setTaskToDelete(null);
+      try {
+        const response = await fetch(`/api/admin/tasks/${taskToDelete}`, {
+          method: "DELETE",
+        });
+
+        if (response.ok) {
+          setTasks((prev) => prev.filter((task) => task.id !== taskToDelete));
+          setTaskToDelete(null);
+        } else {
+          const data = await response.json();
+          console.error("Failed to delete task:", data.error);
+          alert("Failed to delete task. Please try again.");
+        }
+      } catch (error) {
+        console.error("Error deleting task:", error);
+        alert("An error occurred while deleting the task.");
+      }
     }
   };
 
@@ -116,12 +97,18 @@ export function AdminTasksContent() {
         onPriorityChange={setPriorityFilter}
       />
 
-      <TaskGrid
-        tasks={filteredTasks}
-        onEdit={undefined} // Admin cannot edit
-        onDelete={handleDeleteTask} // Admin can delete
-        isAdminView={true}
-      />
+      {loading ? (
+        <div className="flex items-center justify-center py-20">
+          <div className="text-muted-foreground">Loading tasks...</div>
+        </div>
+      ) : (
+        <TaskGrid
+          tasks={filteredTasks}
+          onEdit={undefined} // Admin cannot edit
+          onDelete={handleDeleteTask} // Admin can delete
+          isAdminView={true}
+        />
+      )}
 
       <ConfirmDialog
         open={deleteConfirmOpen}

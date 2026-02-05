@@ -9,9 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CheckCircle2 } from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
 
 export default function LoginForm() {
   const router = useRouter();
+  const { login } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -40,12 +42,23 @@ export default function LoginForm() {
       return;
     }
 
-    // Simulate API call
-    setTimeout(() => {
-      console.log("[v0] Login successful:", formData);
+    try {
+      await login(formData.email, formData.password);
+
+      // Check user role from auth context to determine redirect
+      const response = await fetch("/api/auth/check-auth");
+      const data = await response.json();
+
+      if (data.user && data.user.role === "admin") {
+        router.push("/admin/dashboard");
+      } else {
+        router.push("/user/dashboard");
+      }
+    } catch (err: any) {
+      setError(err.message || "Login failed. Please try again.");
+    } finally {
       setLoading(false);
-      router.push("/");
-    }, 1000);
+    }
   };
 
   return (
@@ -116,6 +129,14 @@ export default function LoginForm() {
               onChange={handleInputChange}
               className="bg-input border-border text-foreground placeholder:text-muted-foreground"
             />
+          </div>
+          <div className="flex items-left justify-between">
+            <Link
+              href="/auth/forgot-password"
+              className="text-xs text-primary hover:underline"
+            >
+              Forgot password?
+            </Link>
           </div>
 
           {/* Error Message */}

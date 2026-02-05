@@ -9,9 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CheckCircle2 } from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
 
 export default function SingnupForm() {
   const router = useRouter();
+  const { signup } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
@@ -20,6 +22,7 @@ export default function SingnupForm() {
     confirmPassword: "",
   });
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -53,18 +56,30 @@ export default function SingnupForm() {
       return;
     }
 
-    if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters");
+    if (formData.password.length < 8) {
+      setError("Password must be at least 8 characters");
       setLoading(false);
       return;
     }
 
-    // Simulate API call
-    setTimeout(() => {
-      console.log("[v0] Sign up successful:", formData);
+    try {
+      await signup(
+        formData.fullName,
+        formData.email,
+        formData.password,
+        formData.confirmPassword,
+      );
+      setSuccess(true);
+      setTimeout(() => {
+        router.push(
+          `/auth/verify-email?email=${encodeURIComponent(formData.email)}`,
+        );
+      }, 1500);
+    } catch (err: any) {
+      setError(err.message || "Signup failed. Please try again.");
+    } finally {
       setLoading(false);
-      router.push("/");
-    }, 1000);
+    }
   };
 
   return (
@@ -174,13 +189,24 @@ export default function SingnupForm() {
             <div className="text-sm text-red-500 text-center">{error}</div>
           )}
 
+          {/* Success Message */}
+          {success && (
+            <div className="text-sm text-green-500 text-center">
+              Account created! Check your email to verify your account.
+            </div>
+          )}
+
           {/* Submit Button */}
           <Button
             type="submit"
-            disabled={loading}
+            disabled={loading || success}
             className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-2"
           >
-            {loading ? "Creating Account..." : "Sign Up"}
+            {loading
+              ? "Creating Account..."
+              : success
+                ? "Account Created!"
+                : "Sign Up"}
           </Button>
 
           {/* Divider */}

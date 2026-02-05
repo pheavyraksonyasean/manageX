@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, Clock, Trash2, GripVertical } from "lucide-react";
+import { AlertCircle, Clock, Trash2, Check, Circle } from "lucide-react";
 
 export interface OverdueTask {
   id: string;
@@ -11,6 +11,7 @@ export interface OverdueTask {
   category: string;
   dueDate: string;
   daysOverdue: number;
+  taskId?: string;
 }
 
 interface NotificationCardProps {
@@ -23,10 +24,25 @@ interface NotificationCardProps {
   onDragEnd?: (e: React.DragEvent) => void;
 }
 
-const priorityColors = {
-  low: "bg-green-500/20 text-green-500 border-green-500/30",
-  medium: "bg-yellow-500/20 text-yellow-500 border-yellow-500/30",
-  high: "bg-red-500/20 text-red-500 border-red-500/30",
+const priorityConfig = {
+  low: {
+    color: "#10b981",
+    bg: "bg-green-500/10",
+    text: "text-green-600",
+    border: "border-green-500/20",
+  },
+  medium: {
+    color: "#f59e0b",
+    bg: "bg-amber-500/10",
+    text: "text-amber-600",
+    border: "border-amber-500/20",
+  },
+  high: {
+    color: "#ef4444",
+    bg: "bg-red-500/10",
+    text: "text-red-600",
+    border: "border-red-500/20",
+  },
 };
 
 export function NotificationCard({
@@ -38,98 +54,103 @@ export function NotificationCard({
   onDragStart,
   onDragEnd,
 }: NotificationCardProps) {
+  const priority = priorityConfig[task.priority];
+
   return (
     <div
       draggable
       onDragStart={(e) => onDragStart?.(e, task)}
       onDragEnd={onDragEnd}
-      className={`relative bg-secondary/40 rounded-xl p-4 sm:p-5 border-l-4 border transition-all duration-200 cursor-grab active:cursor-grabbing ${
+      className={`group relative bg-background rounded-2xl p-5 border transition-all duration-300 ${
         isDragging
-          ? "opacity-50 scale-95 border-primary"
+          ? "opacity-40 scale-95 shadow-none"
           : isSelected
-            ? "border-l-primary border-primary/50 bg-primary/10"
-            : "border-l-red-500 border-border hover:border-muted-foreground"
+            ? "border-primary/50 shadow-lg shadow-primary/5 bg-primary/5"
+            : "border-border/50 hover:border-border hover:shadow-md"
       }`}
     >
-      {/* Drag handle indicator */}
-      <div className="absolute top-3 left-3 sm:top-4 sm:left-4 text-muted-foreground/50">
-        <GripVertical className="w-4 h-4" />
-      </div>
-      {/* Selection checkbox */}
-      <div className="absolute top-3 right-3 sm:top-4 sm:right-4">
+      {/* Left accent bar */}
+      <div
+        className="absolute left-0 top-4 bottom-4 w-1 rounded-r-full transition-all duration-300"
+        style={{ backgroundColor: priority.color }}
+      />
+
+      {/* Header with checkbox and delete */}
+      <div className="flex items-start justify-between mb-4 ml-3">
         <button
           onClick={(e) => {
             e.stopPropagation();
             onSelect(task.id);
           }}
-          className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
-            isSelected
-              ? "bg-primary border-primary"
-              : "border-muted-foreground hover:border-primary"
-          }`}
+          className="flex-shrink-0 transition-all duration-200"
         >
-          {isSelected && (
-            <svg
-              className="w-3 h-3 text-primary-foreground"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fillRule="evenodd"
-                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                clipRule="evenodd"
-              />
-            </svg>
+          {isSelected ? (
+            <div className="w-5 h-5 rounded-md bg-primary flex items-center justify-center">
+              <Check className="w-3.5 h-3.5 text-primary-foreground" />
+            </div>
+          ) : (
+            <Circle className="w-5 h-5 text-muted-foreground/40 hover:text-primary transition-colors" />
           )}
+        </button>
+
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(task.id);
+          }}
+          className="flex-shrink-0 p-1.5 rounded-lg text-muted-foreground/60 hover:text-red-500 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100"
+        >
+          <Trash2 className="w-4 h-4" />
         </button>
       </div>
 
-      {/* Overdue badge */}
-      <div className="flex items-center gap-2 mb-3">
-        <div className="p-1.5 rounded-lg bg-red-500/20">
-          <AlertTriangle className="w-4 h-4 text-red-500" />
+      {/* Content */}
+      <div className="ml-3 space-y-3">
+        {/* Overdue indicator */}
+        <div className="flex items-center gap-2">
+          <div className={`p-1 rounded-lg ${priority.bg}`}>
+            <AlertCircle className={`w-3.5 h-3.5 ${priority.text}`} />
+          </div>
+          <span className={`text-xs font-semibold ${priority.text}`}>
+            {task.daysOverdue === 0
+              ? "Due today"
+              : `${task.daysOverdue} day${task.daysOverdue > 1 ? "s" : ""} overdue`}
+          </span>
         </div>
-        <span className="text-xs sm:text-sm font-semibold text-red-500">
-          {task.daysOverdue} day{task.daysOverdue > 1 ? "s" : ""} overdue
-        </span>
+
+        {/* Title */}
+        <h3 className="font-semibold text-foreground leading-tight line-clamp-2">
+          {task.title}
+        </h3>
+
+        {/* Description */}
+        {task.description && (
+          <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
+            {task.description}
+          </p>
+        )}
+
+        {/* Footer */}
+        <div className="flex items-center justify-between pt-2 border-t border-border/30">
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Clock className="w-3.5 h-3.5" />
+            <span>{task.dueDate}</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span
+              className={`px-2 py-0.5 rounded-md text-xs font-medium ${priority.bg} ${priority.text}`}
+            >
+              {task.priority}
+            </span>
+            {task.category && (
+              <span className="px-2 py-0.5 rounded-md text-xs font-medium bg-secondary/60 text-muted-foreground">
+                {task.category}
+              </span>
+            )}
+          </div>
+        </div>
       </div>
-
-      {/* Task Title */}
-      <h3 className="text-base sm:text-lg font-semibold text-foreground mb-2 pr-8">
-        {task.title}
-      </h3>
-
-      {/* Task Description */}
-      <p className="text-muted-foreground text-xs sm:text-sm mb-4 line-clamp-2">
-        {task.description}
-      </p>
-
-      {/* Tags */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        <span
-          className={`px-2.5 py-1 rounded-full text-xs font-medium border ${priorityColors[task.priority]}`}
-        >
-          {task.priority}
-        </span>
-        <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-secondary text-secondary-foreground border border-border">
-          {task.category}
-        </span>
-      </div>
-
-      {/* Due Date */}
-      <div className="flex items-center gap-2 text-red-400 text-xs sm:text-sm mb-4">
-        <Clock className="w-4 h-4" />
-        <span>Due: {task.dueDate}</span>
-      </div>
-
-      {/* Delete button */}
-      <button
-        onClick={() => onDelete(task.id)}
-        className="w-full flex items-center justify-center gap-2 bg-red-500/20 text-red-500 py-2 sm:py-2.5 px-4 rounded-lg font-medium hover:bg-red-500/30 transition-colors text-sm"
-      >
-        <Trash2 className="w-4 h-4" />
-        Delete Task
-      </button>
     </div>
   );
 }

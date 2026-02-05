@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   format,
@@ -16,39 +16,61 @@ import {
   isToday,
 } from "date-fns";
 
-interface Task {
-  id: string;
-  title: string;
-  dueDate: string;
+interface CalendarDay {
+  date: string;
+  count: number;
+  level: "low" | "medium" | "high";
+  color: string;
 }
 
 interface MiniCalendarProps {
-  tasks?: Task[];
   onDateSelect?: (date: Date) => void;
   selectedDate?: Date;
+  userRole?: "admin" | "user";
 }
 
 export function MiniCalendar({
-  tasks = [],
   onDateSelect,
   selectedDate,
+  userRole = "user",
 }: MiniCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [calendarData, setCalendarData] = useState<CalendarDay[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch calendar data when month changes
+  useEffect(() => {
+    const fetchCalendarData = async () => {
+      setLoading(true);
+      try {
+        const month = currentMonth.getMonth() + 1; // getMonth() returns 0-11
+        const year = currentMonth.getFullYear();
+        const apiPath =
+          userRole === "admin" ? "/api/admin/calendar" : "/api/user/calendar";
+
+        const response = await fetch(`${apiPath}?month=${month}&year=${year}`);
+        const data = await response.json();
+
+        if (data.success) {
+          setCalendarData(data.calendarData || []);
+        }
+      } catch (error) {
+        console.error("Failed to fetch calendar data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCalendarData();
+  }, [currentMonth, userRole]);
 
   const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
   const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
 
-  // Get tasks for a specific date
-  const getTasksForDate = (date: Date) => {
-    return tasks.filter((task) => {
-      try {
-        // Try to parse the date string
-        const taskDate = new Date(task.dueDate);
-        return isSameDay(taskDate, date);
-      } catch {
-        return false;
-      }
-    });
+  // Get calendar info for a specific date
+  const getCalendarInfo = (date: Date): CalendarDay | null => {
+    const dateStr = format(date, "yyyy-MM-dd");
+    return calendarData.find((day) => day.date === dateStr) || null;
   };
 
   // Generate calendar days
@@ -65,11 +87,23 @@ export function MiniCalendar({
     while (day <= endDate) {
       for (let i = 0; i < 7; i++) {
         const currentDay = day;
-        const dayTasks = getTasksForDate(currentDay);
-        const hasTask = dayTasks.length > 0;
+        const calendarInfo = getCalendarInfo(currentDay);
+        const hasTask = calendarInfo !== null && calendarInfo.count > 0;
         const isSelected = selectedDate && isSameDay(currentDay, selectedDate);
         const isCurrentMonth = isSameMonth(currentDay, monthStart);
         const isTodayDate = isToday(currentDay);
+
+        // Get background color based on task level
+        let bgColor = "";
+        if (hasTask && calendarInfo) {
+          if (calendarInfo.level === "low") {
+            bgColor = "bg-green-500/20 hover:bg-green-500/30";
+          } else if (calendarInfo.level === "medium") {
+            bgColor = "bg-amber-500/20 hover:bg-amber-500/30";
+          } else if (calendarInfo.level === "high") {
+            bgColor = "bg-red-500/20 hover:bg-red-500/30";
+          }
+        }
 
         days.push(
           <button
@@ -78,13 +112,16 @@ export function MiniCalendar({
             className={`
               relative w-7 h-7 text-xs rounded-md flex items-center justify-center transition-colors
               ${!isCurrentMonth ? "text-muted-foreground/40" : "text-foreground"}
-              ${isTodayDate ? "bg-primary/20 text-primary font-semibold" : ""}
-              ${isSelected ? "bg-primary text-primary-foreground" : "hover:bg-secondary"}
+              ${isTodayDate ? "ring-1 ring-primary font-semibold" : ""}
+              ${isSelected ? "bg-primary text-primary-foreground" : hasTask ? bgColor : "hover:bg-secondary"}
             `}
           >
             {format(currentDay, "d")}
-            {hasTask && (
-              <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
+            {hasTask && calendarInfo && (
+              <span
+                className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
+                style={{ backgroundColor: calendarInfo.color }}
+              />
             )}
           </button>,
         );

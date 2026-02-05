@@ -28,15 +28,6 @@ interface TaskDialogProps {
   mode?: "create" | "edit";
 }
 
-const categoryOptions = [
-  { value: "Work", label: "Work" },
-  { value: "Personal", label: "Personal" },
-  { value: "Shopping", label: "Shopping" },
-  { value: "Health", label: "Health" },
-  { value: "Finance", label: "Finance" },
-  { value: "Other", label: "Other" },
-];
-
 const priorityOptions = [
   { value: "low", label: "Low", color: "bg-green-500" },
   { value: "medium", label: "Medium", color: "bg-yellow-500" },
@@ -61,6 +52,9 @@ export function TaskDialog({
     initialData?.description || "",
   );
   const [category, setCategory] = useState(initialData?.category || "");
+  const [categoryOptions, setCategoryOptions] = useState<
+    Array<{ value: string; label: string }>
+  >([]);
   const [priority, setPriority] = useState<"low" | "medium" | "high">(
     initialData?.priority || "medium",
   );
@@ -77,6 +71,32 @@ export function TaskDialog({
     }
     return undefined;
   });
+
+  // Fetch categories when dialog opens
+  useEffect(() => {
+    if (open) {
+      fetchCategories();
+    }
+  }, [open]);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch("/api/user/categories");
+      const data = await response.json();
+
+      if (data.success) {
+        const options = data.categories.map((cat: any) => ({
+          value: cat.name,
+          label: cat.name,
+        }));
+        setCategoryOptions(options);
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      // Fallback to empty array if fetch fails
+      setCategoryOptions([]);
+    }
+  };
 
   // Reset form when dialog opens with new data
   useEffect(() => {

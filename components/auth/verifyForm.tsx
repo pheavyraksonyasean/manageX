@@ -2,17 +2,39 @@
 
 import React from "react";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 
 export default function VerifyEmailForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const emailParam = searchParams.get("email");
+
+  const [email, setEmail] = useState(emailParam || "");
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [resendMessage, setResendMessage] = useState("");
+  const [resendCooldown, setResendCooldown] = useState(0);
+
+  useEffect(() => {
+    // Focus first input on mount
+    document.getElementById("digit-0")?.focus();
+  }, []);
+
+  // Resend cooldown timer
+  useEffect(() => {
+    if (resendCooldown > 0) {
+      const timer = setTimeout(() => {
+        setResendCooldown(resendCooldown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCooldown]);
 
   const handleInputChange = (index: number, value: string) => {
     if (value.length > 1) return;
@@ -42,6 +64,12 @@ export default function VerifyEmailForm() {
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setResendMessage("");
+
+    if (!email) {
+      setError("Email is required");
+      return;
+    }
 
     const verificationCode = code.join("");
     if (verificationCode.length !== 6) {
@@ -51,24 +79,69 @@ export default function VerifyEmailForm() {
 
     setLoading(true);
     try {
-      // Simulate API call - replace with actual verification API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      router.push("/dashboard");
-    } catch (err) {
-      setError("Invalid verification code. Please try again.");
+      const response = await fetch("/api/auth/verify-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp: verificationCode }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Verification failed");
+      }
+
+      setSuccess(true);
+
+      // Determine redirect based on user role
+      const role = data.user?.role || "user";
+      const redirectPath =
+        role === "admin" ? "/admin/dashboard" : "/user/dashboard";
+
+      setTimeout(() => {
+        router.push(redirectPath);
+      }, 1500);
+    } catch (err: any) {
+      setError(err.message || "Verification failed");
     } finally {
       setLoading(false);
     }
   };
 
   const handleResendCode = async () => {
+    if (!email) {
+      setError("Email is required");
+      return;
+    }
+
+    if (resendCooldown > 0) {
+      setError(`Please wait ${resendCooldown} seconds before resending`);
+      return;
+    }
+
     setLoading(true);
+    setError("");
+    setResendMessage("");
+
     try {
-      // Simulate API call - replace with actual resend API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await fetch("/api/auth/resend-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to resend code");
+      }
+
+      setResendMessage(data.message);
+      setResendCooldown(30); // 30 second cooldown
       setCode(["", "", "", "", "", ""]);
-      setError("");
       document.getElementById("digit-0")?.focus();
+    } catch (err: any) {
+      setError(err.message || "Failed to resend code");
     } finally {
       setLoading(false);
     }
@@ -102,13 +175,37 @@ export default function VerifyEmailForm() {
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-2">Verify Email</h1>
           <p className="text-muted-foreground">
-            Enter the 6-digit code sent to your email address
+            {email ? (
+              <>
+                Enter the 6-digit code sent to <strong>{email}</strong>
+              </>
+            ) : (
+              "Enter your email and the 6-digit verification code"
+            )}
           </p>
         </div>
 
         {/* Form */}
         <form onSubmit={handleVerify} className="space-y-6">
           <div className="border border-border rounded-2xl p-8 space-y-6 bg-secondary/30">
+            {/* Email Input (if not provided) */}
+            {!emailParam && (
+              <div className="space-y-2">
+                <label htmlFor="email" className="block text-sm font-medium">
+                  Email Address
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  className="w-full px-4 py-2 border border-border rounded-lg bg-input text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  required
+                />
+              </div>
+            )}
+
             {/* Code Input */}
             <div className="space-y-3">
               <label className="block text-sm font-medium">
@@ -139,13 +236,29 @@ export default function VerifyEmailForm() {
               </div>
             )}
 
+            {/* Success Message */}
+            {success && (
+              <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg text-green-500 text-sm">
+                ✅ Email verified! Logging you in...
+              </div>
+            )}
+
+            {/* Resend Message */}
+            {resendMessage && (
+              <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg text-blue-500 text-sm">
+                {resendMessage}
+              </div>
+            )}
+
             {/* Verify Button */}
             <Button
               type="submit"
-              disabled={loading || code.join("").length !== 6}
+              disabled={
+                loading || code.join("").length !== 6 || !email || success
+              }
               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-6"
             >
-              {loading ? "Verifying..." : "Verify Code"}
+              {loading ? "Verifying..." : success ? "Verified!" : "Verify Code"}
             </Button>
 
             {/* Divider */}
@@ -160,14 +273,18 @@ export default function VerifyEmailForm() {
               </div>
             </div>
 
-            {/* Resend Code */}
+            {/* Resend Code Button */}
             <button
               type="button"
               onClick={handleResendCode}
-              disabled={loading}
-              className="w-full text-sm text-primary hover:text-primary/90 font-medium transition-colors"
+              disabled={loading || resendCooldown > 0}
+              className="w-full text-sm text-primary hover:text-primary/90 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "Sending..." : "Resend Code"}
+              {loading
+                ? "Sending..."
+                : resendCooldown > 0
+                  ? `Resend in ${resendCooldown}s`
+                  : "Resend Code"}
             </button>
           </div>
         </form>

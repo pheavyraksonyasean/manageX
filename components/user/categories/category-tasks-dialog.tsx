@@ -6,6 +6,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Category } from "./category-card";
 
@@ -48,6 +49,10 @@ export function CategoryTasksDialog({
 
   const categoryTasks = tasks.filter((task) => task.category === category.name);
 
+  console.log("Category:", category.name);
+  console.log("All tasks:", tasks);
+  console.log("Filtered tasks:", categoryTasks);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-hidden flex flex-col">
@@ -61,6 +66,9 @@ export function CategoryTasksDialog({
               {category.name} Tasks
             </DialogTitle>
           </div>
+          <DialogDescription className="sr-only">
+            View all tasks in the {category.name} category
+          </DialogDescription>
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto space-y-2 sm:space-y-3 pr-1 sm:pr-2 -mr-1 sm:-mr-2">

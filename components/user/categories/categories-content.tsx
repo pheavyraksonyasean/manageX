@@ -1,53 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CategoriesHeader } from "./categories-header";
 import { CategoryForm } from "./category-form";
 import { CategoriesGrid } from "./categories-grid";
 import { Category } from "./category-card";
 import { CategoryTasksDialog, Task } from "./category-tasks-dialog";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-
-// Mock tasks data - replace with actual data fetching
-const mockTasks: Task[] = [
-  {
-    id: "1",
-    title: "Complete project proposal",
-    description: "Draft and finalize the Q1 project proposal for client review",
-    priority: "high",
-    status: "in progress",
-    category: "Work",
-    dueDate: "Jan 30, 2026",
-  },
-  {
-    id: "2",
-    title: "Review team updates",
-    description: "Check the weekly progress reports from team members",
-    priority: "medium",
-    status: "todo",
-    category: "Work",
-    dueDate: "Jan 28, 2026",
-  },
-  {
-    id: "3",
-    title: "Prepare presentation",
-    description: "Create slides for the upcoming client meeting",
-    priority: "high",
-    status: "completed",
-    category: "Work",
-    dueDate: "Jan 25, 2026",
-  },
-];
-
-// Mock data - replace with actual data fetching
-const mockCategories: Category[] = [
-  { id: "1", name: "Work", color: "#f87171", taskCount: 3 },
-  { id: "2", name: "Personal", color: "#ec4899", taskCount: 0 },
-  { id: "3", name: "Health", color: "#10b981", taskCount: 0 },
-  { id: "4", name: "Finance", color: "#a855f7", taskCount: 0 },
-  { id: "5", name: "Shopping", color: "#f59e0b", taskCount: 0 },
-  { id: "6", name: "Other", color: "#06b6d4", taskCount: 0 },
-];
 
 interface CategoriesContentProps {
   userName?: string;
@@ -56,8 +15,9 @@ interface CategoriesContentProps {
 export function CategoriesContent({
   userName = "Regular User",
 }: CategoriesContentProps) {
-  const [categories, setCategories] = useState<Category[]>(mockCategories);
-  const [tasks] = useState<Task[]>(mockTasks);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(true);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
   const [viewTasksOpen, setViewTasksOpen] = useState(false);
@@ -65,14 +25,81 @@ export function CategoriesContent({
     null,
   );
 
-  const handleAddCategory = (name: string, color: string) => {
-    const newCategory: Category = {
-      id: Date.now().toString(),
-      name,
-      color,
-      taskCount: 0,
-    };
-    setCategories((prev) => [...prev, newCategory]);
+  // Fetch categories on component mount
+  useEffect(() => {
+    fetchCategories();
+    fetchTasks();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch("/api/user/categories");
+      const data = await response.json();
+
+      if (data.success) {
+        setCategories(data.categories);
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchTasks = async () => {
+    try {
+      console.log("Fetching tasks...");
+      const response = await fetch("/api/user/tasks");
+      console.log("Tasks response status:", response.status);
+      const data = await response.json();
+      console.log("Tasks response data:", data);
+
+      if (data.success) {
+        // Transform tasks to match the expected format
+        const formattedTasks = data.tasks.map((task: any) => ({
+          id: task.id,
+          title: task.title,
+          description: task.description,
+          priority: task.priority,
+          status: task.status,
+          category: task.category,
+          dueDate: new Date(task.dueDate).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          }),
+        }));
+        setTasks(formattedTasks);
+        console.log("Fetched tasks:", formattedTasks);
+      } else {
+        console.error("Failed to fetch tasks:", data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+    }
+  };
+
+  const handleAddCategory = async (name: string, color: string) => {
+    try {
+      const response = await fetch("/api/user/categories", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, color }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setCategories((prev) => [data.category, ...prev]);
+      } else {
+        alert(data.message || "Failed to create category");
+      }
+    } catch (error) {
+      console.error("Error creating category:", error);
+      alert("Failed to create category");
+    }
   };
 
   const handleDeleteCategory = (categoryId: string) => {
@@ -80,12 +107,31 @@ export function CategoriesContent({
     setDeleteConfirmOpen(true);
   };
 
-  const confirmDeleteCategory = () => {
+  const confirmDeleteCategory = async () => {
     if (categoryToDelete) {
-      setCategories((prev) =>
-        prev.filter((cat) => cat.id !== categoryToDelete),
-      );
-      setCategoryToDelete(null);
+      try {
+        const response = await fetch(
+          `/api/user/categories/${categoryToDelete}`,
+          {
+            method: "DELETE",
+          },
+        );
+
+        const data = await response.json();
+
+        if (data.success) {
+          setCategories((prev) =>
+            prev.filter((cat) => cat.id !== categoryToDelete),
+          );
+        } else {
+          alert(data.message || "Failed to delete category");
+        }
+      } catch (error) {
+        console.error("Error deleting category:", error);
+        alert("Failed to delete category");
+      } finally {
+        setCategoryToDelete(null);
+      }
     }
   };
 
@@ -93,6 +139,14 @@ export function CategoriesContent({
     setSelectedCategory(category);
     setViewTasksOpen(true);
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-muted-foreground">Loading categories...</p>
+      </div>
+    );
+  }
 
   return (
     <>

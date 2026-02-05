@@ -27,6 +27,12 @@ export default function ResetPasswordForm() {
     e.preventDefault();
     setError("");
 
+    const token = searchParams.get("token");
+    if (!token) {
+      setError("Invalid reset link. Please request a new password reset.");
+      return;
+    }
+
     if (!password) {
       setError("Please enter a new password");
       return;
@@ -49,11 +55,24 @@ export default function ResetPasswordForm() {
 
     setLoading(true);
     try {
-      // Simulate API call - replace with actual reset password API
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const response = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to reset password");
+      }
+
       setSuccess(true);
-    } catch (err) {
-      setError("An error occurred. Please try again.");
+      setTimeout(() => {
+        router.push("/auth/login");
+      }, 3000);
+    } catch (err: any) {
+      setError(err.message || "An error occurred. Please try again.");
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   User,
   Mail,
@@ -20,6 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useAuth } from "@/contexts/auth-context";
 
 interface ProfileDialogProps {
   open: boolean;
@@ -29,8 +30,6 @@ interface ProfileDialogProps {
 interface ProfileData {
   fullName: string;
   email: string;
-  phone: string;
-  bio: string;
   avatar: string;
 }
 
@@ -104,16 +103,59 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
 
 // Profile Info Tab Component
 function ProfileInfoTab({ onClose }: { onClose: () => void }) {
+  const { updateUser } = useAuth();
   const [formData, setFormData] = useState<ProfileData>({
-    fullName: "Username",
-    email: "username@gmail.com",
-    phone: "",
-    bio: "",
+    fullName: "",
+    email: "",
+    avatar: "avatar1",
+  });
+  const [initialData, setInitialData] = useState<ProfileData>({
+    fullName: "",
+    email: "",
     avatar: "avatar1",
   });
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+
+  // Fetch user profile on mount
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await fetch("/api/user/profile");
+        const data = await response.json();
+
+        if (data.success) {
+          // Find the matching avatar based on emoji
+          const matchingAvatar =
+            AVATAR_OPTIONS.find(
+              (a) =>
+                a.emoji === data.user.emoji &&
+                a.bg === data.user.emojiBackground,
+            ) || AVATAR_OPTIONS[0];
+
+          const profileData = {
+            fullName: data.user.name,
+            email: data.user.email,
+            avatar: matchingAvatar.id,
+          };
+          setFormData(profileData);
+          setInitialData(profileData);
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -130,29 +172,103 @@ function ProfileInfoTab({ onClose }: { onClose: () => void }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsSaving(false);
-    setIsEditing(false);
-    setShowAvatarPicker(false);
+    setMessage(null);
+
+    try {
+      const selectedAvatar =
+        AVATAR_OPTIONS.find((a) => a.id === formData.avatar) ||
+        AVATAR_OPTIONS[0];
+
+      const payload = {
+        name: formData.fullName,
+        email: formData.email,
+        emoji: selectedAvatar.emoji,
+        emojiBackground: selectedAvatar.bg,
+      };
+
+      const response = await fetch("/api/user/profile", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        const updatedData = {
+          fullName: result.user.name,
+          email: result.user.email,
+          avatar: formData.avatar,
+        };
+        setFormData(updatedData);
+        setInitialData(updatedData);
+
+        // Update auth context with new emoji
+        updateUser({
+          name: result.user.name,
+          email: result.user.email,
+          emoji: result.user.emoji,
+          emojiBackground: result.user.emojiBackground,
+        });
+
+        setMessage({ type: "success", text: "Profile updated successfully" });
+        setIsEditing(false);
+        setShowAvatarPicker(false);
+        setTimeout(() => setMessage(null), 3000);
+      } else {
+        setMessage({
+          type: "error",
+          text: result.message || "Failed to update profile",
+        });
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      setMessage({ type: "error", text: "Failed to update profile" });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCancel = () => {
-    setFormData({
-      fullName: "Username",
-      email: "username@gmail.com",
-      phone: "",
-      bio: "",
-      avatar: "avatar1",
-    });
+    setFormData(initialData);
     setIsEditing(false);
     setShowAvatarPicker(false);
+    setMessage(null);
   };
 
   const currentAvatar =
     AVATAR_OPTIONS.find((a) => a.id === formData.avatar) || AVATAR_OPTIONS[0];
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <p className="text-sm text-muted-foreground">Loading profile...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-3">
+      {/* Success/Error Message */}
+      {message && (
+        <div
+          className={`p-2 sm:p-2.5 rounded-lg flex items-center gap-2 text-xs sm:text-sm ${
+            message.type === "success"
+              ? "bg-green-500/10 text-green-500 border border-green-500/20"
+              : "bg-red-500/10 text-red-500 border border-red-500/20"
+          }`}
+        >
+          {message.type === "success" ? (
+            <Check className="w-3.5 h-3.5 shrink-0" />
+          ) : (
+            <X className="w-3.5 h-3.5 shrink-0" />
+          )}
+          {message.text}
+        </div>
+      )}
+
       {/* Avatar Section */}
       <div className="flex items-center gap-3 pb-3 border-b border-border">
         <div className="relative shrink-0">
@@ -252,39 +368,6 @@ function ProfileInfoTab({ onClose }: { onClose: () => void }) {
           />
         </div>
 
-        {/* Phone */}
-        <div className="space-y-1">
-          <label className="text-[11px] sm:text-xs font-medium text-foreground flex items-center gap-1">
-            <Phone className="w-3 h-3 text-muted-foreground" />
-            Phone
-          </label>
-          <input
-            type="tel"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            disabled={!isEditing}
-            placeholder="Enter phone number"
-            className="w-full bg-background border border-border rounded-lg py-1.5 sm:py-2 px-2.5 sm:px-3 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-          />
-        </div>
-
-        {/* Bio */}
-        <div className="space-y-1">
-          <label className="text-[11px] sm:text-xs font-medium text-foreground">
-            Bio
-          </label>
-          <textarea
-            name="bio"
-            value={formData.bio}
-            onChange={handleChange}
-            disabled={!isEditing}
-            rows={2}
-            placeholder="Tell us about yourself..."
-            className="w-full bg-background border border-border rounded-lg py-1.5 sm:py-2 px-2.5 sm:px-3 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-60 disabled:cursor-not-allowed resize-none transition-colors"
-          />
-        </div>
-
         {/* Action Buttons */}
         {isEditing && (
           <div className="flex gap-2 pt-1.5">
@@ -366,26 +449,47 @@ function ChangePasswordTab({ onClose }: { onClose: () => void }) {
       return;
     }
 
+    if (newPassword.length < 6) {
+      setError("New password must be at least 6 characters");
+      return;
+    }
+
     if (newPassword !== confirmPassword) {
       setError("New passwords do not match");
       return;
     }
 
-    if (passwordStrength < 3) {
-      setError("Please choose a stronger password");
-      return;
-    }
-
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    setIsSubmitting(false);
-    setSuccess(true);
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
+    try {
+      const response = await fetch("/api/user/profile/password", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          currentPassword,
+          newPassword,
+        }),
+      });
 
-    setTimeout(() => setSuccess(false), 3000);
+      const result = await response.json();
+
+      if (result.success) {
+        setSuccess(true);
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+        setTimeout(() => setSuccess(false), 3000);
+      } else {
+        setError(result.message || "Failed to change password");
+      }
+    } catch (error) {
+      console.error("Error changing password:", error);
+      setError("Failed to change password");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
