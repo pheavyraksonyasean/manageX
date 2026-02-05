@@ -40,7 +40,6 @@ export function CategoriesGrid({
 
   return (
     <div className="space-y-4">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-xl font-bold text-foreground">Your Categories</h3>
@@ -51,7 +50,6 @@ export function CategoriesGrid({
         </div>
       </div>
 
-      {/* Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
         {categories.map((category) => (
           <CategoryCard

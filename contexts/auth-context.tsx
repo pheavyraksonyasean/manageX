@@ -41,7 +41,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
 
-  // Check authentication on mount
   useEffect(() => {
     checkAuth();
   }, []);
@@ -106,8 +105,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!response.ok) {
         throw new Error(data.error || "Signup failed");
       }
-
-      // Don't set user yet - they need to verify email first
     } catch (error) {
       throw error;
     }

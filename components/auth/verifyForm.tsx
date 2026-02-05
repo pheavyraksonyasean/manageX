@@ -22,11 +22,9 @@ export default function VerifyEmailForm() {
   const [resendCooldown, setResendCooldown] = useState(0);
 
   useEffect(() => {
-    // Focus first input on mount
     document.getElementById("digit-0")?.focus();
   }, []);
 
-  // Resend cooldown timer
   useEffect(() => {
     if (resendCooldown > 0) {
       const timer = setTimeout(() => {
@@ -137,7 +135,7 @@ export default function VerifyEmailForm() {
       }
 
       setResendMessage(data.message);
-      setResendCooldown(30); // 30 second cooldown
+      setResendCooldown(30);
       setCode(["", "", "", "", "", ""]);
       document.getElementById("digit-0")?.focus();
     } catch (err: any) {
@@ -149,7 +147,6 @@ export default function VerifyEmailForm() {
 
   return (
     <div className="min-h-screen bg-background text-foreground dark flex flex-col items-center justify-center p-6">
-      {/* Back Button */}
       <div className="absolute top-8 left-8">
         <Link
           href="/auth/login"
@@ -159,9 +156,7 @@ export default function VerifyEmailForm() {
         </Link>
       </div>
 
-      {/* Main Content */}
       <div className="w-full max-w-md">
-        {/* Logo */}
         <div className="flex justify-center mb-8">
           <div className="flex items-center gap-2 bg-primary rounded-lg px-3 py-2">
             <CheckCircle2 className="w-5 h-5 text-primary-foreground" />
@@ -171,7 +166,6 @@ export default function VerifyEmailForm() {
           </div>
         </div>
 
-        {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-2">Verify Email</h1>
           <p className="text-muted-foreground">
@@ -185,10 +179,8 @@ export default function VerifyEmailForm() {
           </p>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleVerify} className="space-y-6">
           <div className="border border-border rounded-2xl p-8 space-y-6 bg-secondary/30">
-            {/* Email Input (if not provided) */}
             {!emailParam && (
               <div className="space-y-2">
                 <label htmlFor="email" className="block text-sm font-medium">
@@ -206,7 +198,6 @@ export default function VerifyEmailForm() {
               </div>
             )}
 
-            {/* Code Input */}
             <div className="space-y-3">
               <label className="block text-sm font-medium">
                 Verification Code
@@ -229,28 +220,24 @@ export default function VerifyEmailForm() {
               </div>
             </div>
 
-            {/* Error Message */}
             {error && (
               <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
                 {error}
               </div>
             )}
 
-            {/* Success Message */}
             {success && (
               <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg text-green-500 text-sm">
-                ✅ Email verified! Logging you in...
+                Email verified! Logging you in...
               </div>
             )}
 
-            {/* Resend Message */}
             {resendMessage && (
               <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg text-blue-500 text-sm">
                 {resendMessage}
               </div>
             )}
 
-            {/* Verify Button */}
             <Button
               type="submit"
               disabled={
@@ -261,7 +248,6 @@ export default function VerifyEmailForm() {
               {loading ? "Verifying..." : success ? "Verified!" : "Verify Code"}
             </Button>
 
-            {/* Divider */}
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-border"></div>
@@ -273,7 +259,6 @@ export default function VerifyEmailForm() {
               </div>
             </div>
 
-            {/* Resend Code Button */}
             <button
               type="button"
               onClick={handleResendCode}

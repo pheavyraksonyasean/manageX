@@ -47,7 +47,6 @@ export default function VerifyEmailForm() {
 
   return (
     <div className="min-h-screen bg-background text-foreground dark flex flex-col items-center justify-center p-6">
-      {/* Back Button */}
       <div className="absolute top-8 left-8">
         <Link
           href="/auth/login"
@@ -57,9 +56,7 @@ export default function VerifyEmailForm() {
         </Link>
       </div>
 
-      {/* Main Content */}
       <div className="w-full max-w-md">
-        {/* Logo */}
         <div className="flex justify-center mb-8">
           <div className="flex items-center gap-2 bg-primary rounded-lg px-3 py-2">
             <CheckCircle2 className="w-5 h-5 text-primary-foreground" />
@@ -69,7 +66,6 @@ export default function VerifyEmailForm() {
           </div>
         </div>
 
-        {/* Verification Card */}
         <div className="border border-border rounded-xl p-8 space-y-6 bg-secondary/50">
           <div className="text-center space-y-2">
             <h1 className="text-3xl font-bold">Email Verification</h1>

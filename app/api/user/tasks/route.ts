@@ -4,7 +4,6 @@ import dbConnect from "@/lib/mongodb";
 import Task from "@/models/Task";
 import { verifyJWT } from "@/lib/jwt";
 
-// GET /api/tasks - Get all tasks for authenticated user
 export async function GET() {
   try {
     const cookieStore = await cookies();
@@ -25,7 +24,6 @@ export async function GET() {
       .sort({ createdAt: -1 })
       .lean();
 
-    // Format tasks for frontend
     const formattedTasks = tasks.map((task) => ({
       id: task._id.toString(),
       title: task.title,
@@ -53,7 +51,6 @@ export async function GET() {
   }
 }
 
-// POST /api/tasks - Create a new task
 export async function POST(request: Request) {
   try {
     const cookieStore = await cookies();
@@ -71,7 +68,6 @@ export async function POST(request: Request) {
     const { title, description, category, priority, status, dueDate } =
       await request.json();
 
-    // Validation
     if (!title || !description || !category || !dueDate) {
       return NextResponse.json(
         { error: "Title, description, category, and due date are required" },
@@ -81,7 +77,6 @@ export async function POST(request: Request) {
 
     await dbConnect();
 
-    // Create task
     const task = await Task.create({
       userId: decoded.userId,
       title,
@@ -92,7 +87,6 @@ export async function POST(request: Request) {
       dueDate: new Date(dueDate),
     });
 
-    // Format task for frontend
     const formattedTask = {
       id: task._id.toString(),
       title: task.title,

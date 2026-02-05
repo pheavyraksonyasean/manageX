@@ -38,12 +38,11 @@ export function MiniCalendar({
   const [calendarData, setCalendarData] = useState<CalendarDay[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Fetch calendar data when month changes
   useEffect(() => {
     const fetchCalendarData = async () => {
       setLoading(true);
       try {
-        const month = currentMonth.getMonth() + 1; // getMonth() returns 0-11
+        const month = currentMonth.getMonth() + 1;
         const year = currentMonth.getFullYear();
         const apiPath =
           userRole === "admin" ? "/api/admin/calendar" : "/api/user/calendar";
@@ -67,13 +66,11 @@ export function MiniCalendar({
   const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
   const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
 
-  // Get calendar info for a specific date
   const getCalendarInfo = (date: Date): CalendarDay | null => {
     const dateStr = format(date, "yyyy-MM-dd");
     return calendarData.find((day) => day.date === dateStr) || null;
   };
 
-  // Generate calendar days
   const renderDays = () => {
     const monthStart = startOfMonth(currentMonth);
     const monthEnd = endOfMonth(monthStart);
@@ -93,7 +90,6 @@ export function MiniCalendar({
         const isCurrentMonth = isSameMonth(currentDay, monthStart);
         const isTodayDate = isToday(currentDay);
 
-        // Get background color based on task level
         let bgColor = "";
         if (hasTask && calendarInfo) {
           if (calendarInfo.level === "low") {
@@ -142,7 +138,6 @@ export function MiniCalendar({
 
   return (
     <div className="bg-secondary/40 rounded-lg p-3">
-      {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <button
           onClick={prevMonth}
@@ -161,7 +156,6 @@ export function MiniCalendar({
         </button>
       </div>
 
-      {/* Week days header */}
       <div className="grid grid-cols-7 gap-1 mb-1">
         {weekDays.map((day) => (
           <div
@@ -173,7 +167,6 @@ export function MiniCalendar({
         ))}
       </div>
 
-      {/* Calendar days */}
       <div className="space-y-1">{renderDays()}</div>
     </div>
   );

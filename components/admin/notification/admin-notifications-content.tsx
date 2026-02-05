@@ -13,7 +13,6 @@ export function AdminNotificationsContent() {
   >([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch admin notifications from API
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
@@ -52,7 +51,6 @@ export function AdminNotificationsContent() {
     fetchNotifications();
   }, []);
 
-  // Helper function to calculate time ago
   const getTimeAgo = (date: Date) => {
     const now = new Date();
     const diffInMs = now.getTime() - date.getTime();
@@ -100,7 +98,6 @@ export function AdminNotificationsContent() {
         totalNotifications={totalNotifications}
       />
 
-      {/* User Registration Notifications Section */}
       {userRegistrations.length > 0 ? (
         <div>
           <h2 className="text-xl font-semibold mb-4">User Registrations</h2>

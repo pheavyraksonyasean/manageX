@@ -81,7 +81,6 @@ export default function ResetPasswordForm() {
   if (success) {
     return (
       <div className="min-h-screen bg-background text-foreground dark flex flex-col items-center justify-center p-6">
-        {/* Back Button */}
         <div className="absolute top-8 left-8">
           <Link
             href="/auth/login"
@@ -91,9 +90,7 @@ export default function ResetPasswordForm() {
           </Link>
         </div>
 
-        {/* Main Content */}
         <div className="w-full max-w-md">
-          {/* Logo */}
           <div className="flex justify-center mb-8">
             <div className="flex items-center gap-2 bg-primary rounded-lg px-3 py-2">
               <CheckCircle2 className="w-5 h-5 text-primary-foreground" />
@@ -103,7 +100,6 @@ export default function ResetPasswordForm() {
             </div>
           </div>
 
-          {/* Success Message */}
           <div className="text-center space-y-4">
             <div className="flex justify-center mb-4">
               <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center">
@@ -117,7 +113,6 @@ export default function ResetPasswordForm() {
             </p>
           </div>
 
-          {/* Action */}
           <div className="mt-8">
             <Link href="/login">
               <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-6">
@@ -132,7 +127,6 @@ export default function ResetPasswordForm() {
 
   return (
     <div className="min-h-screen bg-background text-foreground dark flex flex-col items-center justify-center p-6">
-      {/* Back Button */}
       <div className="absolute top-8 left-8">
         <Link
           href="/auth/login"
@@ -142,9 +136,7 @@ export default function ResetPasswordForm() {
         </Link>
       </div>
 
-      {/* Main Content */}
       <div className="w-full max-w-md">
-        {/* Logo */}
         <div className="flex justify-center mb-8">
           <div className="flex items-center gap-2 bg-primary rounded-lg px-3 py-2">
             <CheckCircle2 className="w-5 h-5 text-primary-foreground" />
@@ -154,7 +146,6 @@ export default function ResetPasswordForm() {
           </div>
         </div>
 
-        {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-2">Reset Password</h1>
           <p className="text-muted-foreground">
@@ -162,10 +153,8 @@ export default function ResetPasswordForm() {
           </p>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="border border-border rounded-2xl p-8 space-y-6 bg-secondary/30">
-            {/* Password Input */}
             <div className="space-y-2">
               <label htmlFor="password" className="block text-sm font-medium">
                 New Password

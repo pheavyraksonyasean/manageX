@@ -58,7 +58,6 @@ export default function ForgotPasswordForm() {
   if (submitted) {
     return (
       <div className="min-h-screen bg-background text-foreground dark flex flex-col items-center justify-center p-6">
-        {/* Back Button */}
         <div className="absolute top-8 left-8">
           <Link
             href="/login"
@@ -68,9 +67,7 @@ export default function ForgotPasswordForm() {
           </Link>
         </div>
 
-        {/* Main Content */}
         <div className="w-full max-w-md">
-          {/* Logo */}
           <div className="flex justify-center mb-8">
             <div className="flex items-center gap-2 bg-primary rounded-lg px-3 py-2">
               <CheckCircle2 className="w-5 h-5 text-primary-foreground" />
@@ -80,7 +77,6 @@ export default function ForgotPasswordForm() {
             </div>
           </div>
 
-          {/* Success Message */}
           <div className="text-center space-y-4">
             <div className="flex justify-center mb-4">
               <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center">
@@ -98,7 +94,6 @@ export default function ForgotPasswordForm() {
             </p>
           </div>
 
-          {/* Actions */}
           <div className="mt-8 space-y-3">
             <Button
               onClick={() => setSubmitted(false)}
@@ -122,7 +117,6 @@ export default function ForgotPasswordForm() {
 
   return (
     <div className="min-h-screen bg-background text-foreground dark flex flex-col items-center justify-center p-6">
-      {/* Back Button */}
       <div className="absolute top-8 left-8">
         <Link
           href="/login"
@@ -132,9 +126,7 @@ export default function ForgotPasswordForm() {
         </Link>
       </div>
 
-      {/* Main Content */}
       <div className="w-full max-w-md">
-        {/* Logo */}
         <div className="flex justify-center mb-8">
           <div className="flex items-center gap-2 bg-primary rounded-lg px-3 py-2">
             <CheckCircle2 className="w-5 h-5 text-primary-foreground" />
@@ -144,7 +136,6 @@ export default function ForgotPasswordForm() {
           </div>
         </div>
 
-        {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-2">Forgot Password?</h1>
           <p className="text-muted-foreground">
@@ -153,10 +144,8 @@ export default function ForgotPasswordForm() {
           </p>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="border border-border rounded-2xl p-8 space-y-6 bg-secondary/30">
-            {/* Email Input */}
             <div className="space-y-2">
               <label htmlFor="email" className="block text-sm font-medium">
                 Email Address
@@ -171,14 +160,12 @@ export default function ForgotPasswordForm() {
               />
             </div>
 
-            {/* Error Message */}
             {error && (
               <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
                 {error}
               </div>
             )}
 
-            {/* Submit Button */}
             <Button
               type="submit"
               disabled={loading}
@@ -189,7 +176,6 @@ export default function ForgotPasswordForm() {
           </div>
         </form>
 
-        {/* Back to Login */}
         <div className="text-center mt-6">
           <p className="text-muted-foreground text-sm">
             Remember your password?{" "}

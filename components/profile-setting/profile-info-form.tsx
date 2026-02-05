@@ -32,7 +32,6 @@ export function ProfileInfoForm({ initialData, onSave }: ProfileInfoFormProps) {
     text: string;
   } | null>(null);
 
-  // Update form when initialData changes
   useEffect(() => {
     setFormData(initialData);
   }, [initialData]);
@@ -68,7 +67,6 @@ export function ProfileInfoForm({ initialData, onSave }: ProfileInfoFormProps) {
     setMessage(null);
   };
 
-  // Get initials from name
   const getInitials = () => {
     const names = formData.name.split(" ");
     if (names.length >= 2) {
@@ -93,7 +91,6 @@ export function ProfileInfoForm({ initialData, onSave }: ProfileInfoFormProps) {
         )}
       </div>
 
-      {/* Success/Error Message */}
       {message && (
         <div
           className={`mb-4 p-3 rounded-lg flex items-center gap-2 text-sm ${
@@ -111,7 +108,6 @@ export function ProfileInfoForm({ initialData, onSave }: ProfileInfoFormProps) {
         </div>
       )}
 
-      {/* Avatar Section */}
       <div className="flex flex-col sm:flex-row items-center gap-4 mb-6 pb-6 border-b border-border">
         <div className="relative">
           <div className="w-20 h-20 sm:w-24 sm:h-24 bg-primary rounded-full flex items-center justify-center">
@@ -137,7 +133,6 @@ export function ProfileInfoForm({ initialData, onSave }: ProfileInfoFormProps) {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Name Field */}
         <div className="space-y-1.5">
           <label className="text-sm font-medium text-foreground flex items-center gap-2">
             <User className="w-4 h-4 text-muted-foreground" />
@@ -154,7 +149,6 @@ export function ProfileInfoForm({ initialData, onSave }: ProfileInfoFormProps) {
           />
         </div>
 
-        {/* Email */}
         <div className="space-y-1.5">
           <label className="text-sm font-medium text-foreground flex items-center gap-2">
             <Mail className="w-4 h-4 text-muted-foreground" />
@@ -171,7 +165,6 @@ export function ProfileInfoForm({ initialData, onSave }: ProfileInfoFormProps) {
           />
         </div>
 
-        {/* Phone */}
         <div className="space-y-1.5">
           <label className="text-sm font-medium text-foreground flex items-center gap-2">
             <Phone className="w-4 h-4 text-muted-foreground" />
@@ -188,7 +181,6 @@ export function ProfileInfoForm({ initialData, onSave }: ProfileInfoFormProps) {
           />
         </div>
 
-        {/* Bio */}
         <div className="space-y-1.5">
           <label className="text-sm font-medium text-foreground">Bio</label>
           <textarea
@@ -202,7 +194,6 @@ export function ProfileInfoForm({ initialData, onSave }: ProfileInfoFormProps) {
           />
         </div>
 
-        {/* Action Buttons */}
         {isEditing && (
           <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 pt-2">
             <button

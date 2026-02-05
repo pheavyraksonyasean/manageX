@@ -8,7 +8,6 @@ export async function GET(request: NextRequest) {
   try {
     await dbConnect();
 
-    // Verify admin authentication
     const token = request.cookies.get("auth-token")?.value;
     if (!token) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -22,12 +21,10 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get query parameters for filtering
     const { searchParams } = new URL(request.url);
-    const role = searchParams.get("role"); // Optional filter by role
-    const search = searchParams.get("search"); // Optional search by name/email
+    const role = searchParams.get("role");
+    const search = searchParams.get("search");
 
-    // Build query
     let query: any = {};
     if (role) {
       query.role = role;
@@ -39,13 +36,11 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    // Fetch all users
     const users = await User.find(query)
       .select("_id name email role createdAt")
       .sort({ createdAt: -1 })
       .lean();
 
-    // Get task count for each user
     const usersWithTaskCount = await Promise.all(
       users.map(async (user) => {
         const tasksCount = await Task.countDocuments({ userId: user._id });

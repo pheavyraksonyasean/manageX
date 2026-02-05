@@ -18,7 +18,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate OTP format (6 digits)
     if (!/^\d{6}$/.test(otp)) {
       return NextResponse.json(
         { error: "Invalid OTP format. Must be 6 digits." },
@@ -26,7 +25,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Find verification token
     const verificationTokenDoc = await VerificationToken.findOne({
       email: email.toLowerCase(),
     });
@@ -38,7 +36,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if token has expired
     if (new Date() > verificationTokenDoc.expires) {
       await VerificationToken.deleteOne({ email: email.toLowerCase() });
       return NextResponse.json(
@@ -47,7 +44,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check attempts
     if (verificationTokenDoc.attempts >= MAX_ATTEMPTS) {
       await VerificationToken.deleteOne({ email: email.toLowerCase() });
       return NextResponse.json(
@@ -59,9 +55,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify OTP
     if (verificationTokenDoc.otp !== otp) {
-      // Increment attempts
       verificationTokenDoc.attempts += 1;
       await verificationTokenDoc.save();
 
@@ -74,7 +68,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Update user
     const user = await User.findOneAndUpdate(
       { email: email.toLowerCase() },
       {
@@ -89,9 +82,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Delete verification token
     await VerificationToken.deleteOne({ email: email.toLowerCase() });
-    // Create JWT token and set cookie to auto-login user
+
     const token = signJWT({
       userId: user._id.toString(),
       email: user.email,
@@ -111,12 +103,11 @@ export async function POST(request: NextRequest) {
       { status: 200 },
     );
 
-    // Set secure HTTP-only cookie
     response.cookies.set("auth-token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60, // 7 days
+      maxAge: 7 * 24 * 60 * 60,
       path: "/",
     });
 

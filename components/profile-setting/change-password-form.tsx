@@ -113,7 +113,6 @@ export function ChangePasswordForm({ onSubmit }: ChangePasswordFormProps) {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Current Password */}
         <div className="space-y-1.5">
           <label className="text-sm font-medium text-foreground flex items-center gap-2">
             <Lock className="w-4 h-4 text-muted-foreground" />
@@ -141,7 +140,6 @@ export function ChangePasswordForm({ onSubmit }: ChangePasswordFormProps) {
           </div>
         </div>
 
-        {/* New Password */}
         <div className="space-y-1.5">
           <label className="text-sm font-medium text-foreground flex items-center gap-2">
             <Lock className="w-4 h-4 text-muted-foreground" />
@@ -168,7 +166,6 @@ export function ChangePasswordForm({ onSubmit }: ChangePasswordFormProps) {
             </button>
           </div>
 
-          {/* Password Strength Indicator */}
           {newPassword && (
             <div className="mt-2 space-y-2">
               <div className="flex items-center gap-2">
@@ -258,7 +255,6 @@ export function ChangePasswordForm({ onSubmit }: ChangePasswordFormProps) {
           )}
         </div>
 
-        {/* Submit Button */}
         <div className="pt-2">
           <button
             type="submit"

@@ -38,7 +38,6 @@ export default function SingnupForm() {
     setLoading(true);
     setError("");
 
-    // Validation
     if (
       !formData.fullName ||
       !formData.email ||
@@ -84,7 +83,6 @@ export default function SingnupForm() {
 
   return (
     <div className="min-h-screen bg-background text-foreground dark flex flex-col items-center justify-center px-4 py-8">
-      {/* Back Button */}
       <Link href="/" className="absolute top-8 left-8">
         <Button
           variant="outline"
@@ -94,7 +92,6 @@ export default function SingnupForm() {
         </Button>
       </Link>
 
-      {/* Logo and Heading */}
       <div className="text-center mb-8 space-y-4">
         <div className="flex items-center justify-center gap-2">
           <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
@@ -110,7 +107,6 @@ export default function SingnupForm() {
         </div>
       </div>
 
-      {/* Sign Up Form */}
       <form onSubmit={handleSubmit} className="w-full max-w-md">
         <div className="border border-border rounded-xl p-8 space-y-6 bg-secondary/50">
           <div className="text-center space-y-2">
@@ -120,7 +116,6 @@ export default function SingnupForm() {
             </p>
           </div>
 
-          {/* Full Name */}
           <div className="space-y-2">
             <Label htmlFor="fullName" className="text-sm font-medium">
               Full Name
@@ -136,7 +131,6 @@ export default function SingnupForm() {
             />
           </div>
 
-          {/* Email */}
           <div className="space-y-2">
             <Label htmlFor="email" className="text-sm font-medium">
               Email
@@ -152,7 +146,6 @@ export default function SingnupForm() {
             />
           </div>
 
-          {/* Password */}
           <div className="space-y-2">
             <Label htmlFor="password" className="text-sm font-medium">
               Password
@@ -168,7 +161,6 @@ export default function SingnupForm() {
             />
           </div>
 
-          {/* Confirm Password */}
           <div className="space-y-2">
             <Label htmlFor="confirmPassword" className="text-sm font-medium">
               Confirm Password
@@ -184,19 +176,16 @@ export default function SingnupForm() {
             />
           </div>
 
-          {/* Error Message */}
           {error && (
             <div className="text-sm text-red-500 text-center">{error}</div>
           )}
 
-          {/* Success Message */}
           {success && (
             <div className="text-sm text-green-500 text-center">
               Account created! Check your email to verify your account.
             </div>
           )}
 
-          {/* Submit Button */}
           <Button
             type="submit"
             disabled={loading || success}
@@ -209,14 +198,12 @@ export default function SingnupForm() {
                 : "Sign Up"}
           </Button>
 
-          {/* Divider */}
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-border"></div>
             </div>
           </div>
 
-          {/* Sign In Link */}
           <p className="text-center text-sm text-muted-foreground">
             Already have an account?{" "}
             <Link

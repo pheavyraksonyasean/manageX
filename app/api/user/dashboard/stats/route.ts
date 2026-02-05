@@ -4,7 +4,6 @@ import dbConnect from "@/lib/mongodb";
 import Task from "@/models/Task";
 import { verifyJWT } from "@/lib/jwt";
 
-// GET /api/user/dashboard/stats - Get dashboard statistics for user
 export async function GET() {
   try {
     const cookieStore = await cookies();
@@ -21,10 +20,7 @@ export async function GET() {
 
     await dbConnect();
 
-    // Get all tasks for user
     const tasks = await Task.find({ userId: decoded.userId }).lean();
-
-    // Calculate statistics
     const totalTasks = tasks.length;
     const inProgressTasks = tasks.filter(
       (task) => task.status === "in progress",
@@ -32,28 +28,23 @@ export async function GET() {
     const completedTasks = tasks.filter(
       (task) => task.status === "completed",
     ).length;
-
-    // Calculate overdue tasks (past due date and not completed)
     const now = new Date();
     const overdueTasks = tasks.filter(
       (task) => task.status !== "completed" && new Date(task.dueDate) < now,
     ).length;
 
-    // Tasks by priority
     const priorityStats = {
       high: tasks.filter((task) => task.priority === "high").length,
       medium: tasks.filter((task) => task.priority === "medium").length,
       low: tasks.filter((task) => task.priority === "low").length,
     };
 
-    // Tasks by status
     const statusStats = {
       todo: tasks.filter((task) => task.status === "todo").length,
       inProgress: tasks.filter((task) => task.status === "in progress").length,
       completed: completedTasks,
     };
 
-    // Recent tasks (last 5)
     const recentTasks = tasks
       .sort(
         (a, b) =>

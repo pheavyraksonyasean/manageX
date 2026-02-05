@@ -23,7 +23,6 @@ export function TasksContent({ userName = "Regular User" }: TasksContentProps) {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
 
-  // Fetch tasks from API
   useEffect(() => {
     fetchTasks();
   }, []);
@@ -46,7 +45,6 @@ export function TasksContent({ userName = "Regular User" }: TasksContentProps) {
     }
   };
 
-  // Filter tasks based on search and filters
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
       const matchesSearch =
@@ -103,7 +101,6 @@ export function TasksContent({ userName = "Regular User" }: TasksContentProps) {
   const handleSubmitTask = async (taskData: Omit<Task, "id">) => {
     try {
       if (editingTask) {
-        // Update existing task
         const response = await fetch(`/api/user/tasks/${editingTask.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -121,7 +118,6 @@ export function TasksContent({ userName = "Regular User" }: TasksContentProps) {
           alert("Failed to update task. Please try again.");
         }
       } else {
-        // Create new task
         const response = await fetch("/api/user/tasks", {
           method: "POST",
           headers: { "Content-Type": "application/json" },

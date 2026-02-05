@@ -14,11 +14,8 @@ export async function POST(request: Request) {
 
     await dbConnect();
 
-    // Find user by email
     const user = await User.findOne({ email: email.toLowerCase() });
 
-    // For security, always return success even if user doesn't exist
-    // This prevents email enumeration attacks
     if (!user) {
       return NextResponse.json(
         {
@@ -29,24 +26,20 @@ export async function POST(request: Request) {
       );
     }
 
-    // Generate reset token
     const resetToken = crypto.randomBytes(32).toString("hex");
     const hashedToken = crypto
       .createHash("sha256")
       .update(resetToken)
       .digest("hex");
 
-    // Set token and expiry (1 hour from now)
     user.resetPasswordToken = hashedToken;
     user.resetPasswordTokenExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
     await user.save();
 
-    // Send reset email
     try {
       await sendResetPasswordEmail(user.email, resetToken, user.name);
     } catch (emailError) {
       console.error("Failed to send reset email:", emailError);
-      // Continue anyway - token is saved in database
     }
 
     return NextResponse.json(

@@ -8,7 +8,6 @@ interface UserStatsProps {
 export function UserStats({ totalUsers, regularUsers }: UserStatsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-      {/* Total Users */}
       <div className="border hover:border-muted-foreground rounded-xl p-6 bg-secondary/40 hover:bg-secondary/80 transition-colors">
         <div className="flex items-start justify-between mb-4">
           <div className="text-primary">
@@ -22,7 +21,6 @@ export function UserStats({ totalUsers, regularUsers }: UserStatsProps) {
         </div>
       </div>
 
-      {/* Regular Users */}
       <div className="border hover:border-muted-foreground rounded-xl p-6 bg-secondary/40 hover:bg-secondary/80 transition-colors">
         <div className="flex items-start justify-between mb-4">
           <div className="text-primary">
@@ -38,7 +36,6 @@ export function UserStats({ totalUsers, regularUsers }: UserStatsProps) {
         </div>
       </div>
 
-      {/* Admin Users */}
       <div className="border hover:border-muted-foreground rounded-xl p-6 bg-secondary/40 hover:bg-secondary/80 transition-colors">
         <div className="flex items-start justify-between mb-4">
           <div className="text-primary">

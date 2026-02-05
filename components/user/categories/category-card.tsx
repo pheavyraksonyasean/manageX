@@ -25,7 +25,6 @@ export function CategoryCard({
       className="relative bg-gradient-to-br from-secondary/80 to-secondary/40 rounded-2xl p-5 border border-border/50 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 cursor-pointer group overflow-hidden"
       onClick={() => onClick?.(category)}
     >
-      {/* Gradient overlay based on category color */}
       <div
         className="absolute inset-0 opacity-5 group-hover:opacity-10 transition-opacity duration-300"
         style={{
@@ -33,12 +32,9 @@ export function CategoryCard({
         }}
       />
 
-      {/* Content */}
       <div className="relative z-10">
-        {/* Header with color indicator and actions */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
-            {/* Color indicator with glow effect */}
             <div className="relative">
               <div
                 className="absolute inset-0 rounded-lg blur-md opacity-50"
@@ -52,7 +48,6 @@ export function CategoryCard({
               </div>
             </div>
 
-            {/* Category name */}
             <div>
               <h3 className="font-semibold text-foreground text-lg group-hover:text-primary transition-colors">
                 {category.name}
@@ -61,7 +56,6 @@ export function CategoryCard({
             </div>
           </div>
 
-          {/* Delete button */}
           {onDelete && (
             <button
               onClick={(e) => {
@@ -80,7 +74,6 @@ export function CategoryCard({
           )}
         </div>
 
-        {/* Task count and view action */}
         <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/50">
           <div className="flex items-center gap-2">
             <div
@@ -94,7 +87,6 @@ export function CategoryCard({
             </div>
           </div>
 
-          {/* View indicator */}
           <div className="flex items-center gap-1 text-xs text-muted-foreground group-hover:text-primary transition-colors">
             <Eye className="w-3.5 h-3.5" />
             <span className="font-medium">View</span>
@@ -103,7 +95,6 @@ export function CategoryCard({
         </div>
       </div>
 
-      {/* Hover effect - subtle shine */}
       <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
     </div>
   );

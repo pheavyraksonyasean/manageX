@@ -25,7 +25,6 @@ export function CategoriesContent({
     null,
   );
 
-  // Fetch categories on component mount
   useEffect(() => {
     fetchCategories();
     fetchTasks();
@@ -55,7 +54,6 @@ export function CategoriesContent({
       console.log("Tasks response data:", data);
 
       if (data.success) {
-        // Transform tasks to match the expected format
         const formattedTasks = data.tasks.map((task: any) => ({
           id: task.id,
           title: task.title,

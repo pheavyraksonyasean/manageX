@@ -8,7 +8,6 @@ export async function GET(request: NextRequest) {
   try {
     await dbConnect();
 
-    // Verify admin authentication
     const token = request.cookies.get("auth-token")?.value;
     if (!token) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -22,10 +21,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Fetch all tasks
     const tasks = await Task.find().lean();
 
-    // Calculate task statistics
     const totalTasks = tasks.length;
     const completedTasks = tasks.filter((t) => t.status === "completed").length;
     const inProgressTasks = tasks.filter(
@@ -34,33 +31,28 @@ export async function GET(request: NextRequest) {
     const todoTasks = tasks.filter((t) => t.status === "todo").length;
     const highPriorityTasks = tasks.filter((t) => t.priority === "high").length;
 
-    // Calculate overdue tasks
     const now = new Date();
     const overdueTasks = tasks.filter((t) => {
       if (t.status === "completed") return false;
       return new Date(t.dueDate) < now;
     }).length;
 
-    // Fetch user statistics
     const totalUsers = await User.countDocuments();
     const adminUsers = await User.countDocuments({ role: "admin" });
     const regularUsers = await User.countDocuments({ role: "user" });
 
-    // Task status distribution for bar chart
     const tasksByStatus = {
       todo: todoTasks,
       inProgress: inProgressTasks,
       completed: completedTasks,
     };
 
-    // Task priority distribution
     const tasksByPriority = {
       low: tasks.filter((t) => t.priority === "low").length,
       medium: tasks.filter((t) => t.priority === "medium").length,
       high: highPriorityTasks,
     };
 
-    // Recent users (last 5)
     const recentUsers = await User.find()
       .select("_id name email role emoji emojiBackground createdAt")
       .sort({ createdAt: -1 })

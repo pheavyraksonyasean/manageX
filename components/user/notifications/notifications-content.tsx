@@ -20,7 +20,6 @@ export function NotificationsContent({
   const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
-  // Fetch notifications on component mount
   useEffect(() => {
     fetchNotifications();
   }, []);
@@ -32,9 +31,7 @@ export function NotificationsContent({
       const data = await response.json();
 
       if (data.success) {
-        // Transform notifications to match OverdueTask format
         const formattedTasks = data.notifications.map((notif: any) => {
-          // Calculate days overdue
           const dueDate = new Date(notif.taskDueDate);
           const today = new Date();
           const timeDiff = today.getTime() - dueDate.getTime();
@@ -90,7 +87,6 @@ export function NotificationsContent({
   };
 
   const handleDragDelete = async (taskId: string) => {
-    // Direct delete without confirmation for drag & drop
     try {
       const response = await fetch(`/api/user/notifications/${taskId}`, {
         method: "DELETE",
@@ -147,7 +143,6 @@ export function NotificationsContent({
 
   const confirmBulkDelete = async () => {
     try {
-      // Delete all selected notifications
       await Promise.all(
         selectedIds.map((id) =>
           fetch(`/api/user/notifications/${id}`, {
@@ -195,7 +190,6 @@ export function NotificationsContent({
         onDragDelete={handleDragDelete}
       />
 
-      {/* Single delete confirmation */}
       <ConfirmDialog
         open={deleteConfirmOpen}
         onOpenChange={setDeleteConfirmOpen}
@@ -207,7 +201,6 @@ export function NotificationsContent({
         variant="danger"
       />
 
-      {/* Bulk delete confirmation */}
       <ConfirmDialog
         open={bulkDeleteOpen}
         onOpenChange={setBulkDeleteOpen}

@@ -3,7 +3,6 @@ import dbConnect from "@/lib/mongodb";
 import Task from "@/models/Task";
 import { verifyJWT } from "@/lib/jwt";
 
-// GET - Get all tasks for a specific date
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ date: string }> },
@@ -28,18 +27,15 @@ export async function GET(
 
     await dbConnect();
 
-    const { date } = await params; // Format: YYYY-MM-DD
-
-    // Parse the date string to avoid timezone issues
+    const { date } = await params;
     const [yearStr, monthStr, dayStr] = date.split("-");
     const year = parseInt(yearStr);
-    const month = parseInt(monthStr) - 1; // JS months are 0-based
+    const month = parseInt(monthStr) - 1;
     const day = parseInt(dayStr);
 
     const startOfDay = new Date(year, month, day, 0, 0, 0);
     const endOfDay = new Date(year, month, day, 23, 59, 59);
 
-    // Fetch tasks for this specific date
     const tasks = await Task.find({
       userId: decoded.userId,
       dueDate: {
@@ -50,7 +46,6 @@ export async function GET(
       .sort({ priority: -1, createdAt: -1 })
       .lean();
 
-    // Format tasks
     const formattedTasks = tasks.map((task) => ({
       _id: task._id.toString(),
       id: task._id.toString(),
@@ -62,20 +57,19 @@ export async function GET(
       dueDate: task.dueDate,
     }));
 
-    // Calculate task level for this date
     const count = tasks.length;
     let level: "low" | "medium" | "high" = "low";
     let color = "#10b981";
 
     if (count <= 2) {
       level = "low";
-      color = "#10b981"; // Green
+      color = "#10b981";
     } else if (count <= 5) {
       level = "medium";
-      color = "#f59e0b"; // Amber
+      color = "#f59e0b";
     } else {
       level = "high";
-      color = "#ef4444"; // Red
+      color = "#ef4444";
     }
 
     return NextResponse.json({

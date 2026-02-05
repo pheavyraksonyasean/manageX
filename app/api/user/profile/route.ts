@@ -3,7 +3,6 @@ import dbConnect from "@/lib/mongodb";
 import User from "@/models/User";
 import { verifyJWT } from "@/lib/jwt";
 
-// GET - Get user profile
 export async function GET(req: NextRequest) {
   try {
     const token = req.cookies.get("auth-token")?.value;
@@ -55,7 +54,6 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// PATCH - Update user profile
 export async function PATCH(req: NextRequest) {
   try {
     const token = req.cookies.get("auth-token")?.value;
@@ -80,7 +78,6 @@ export async function PATCH(req: NextRequest) {
     const body = await req.json();
     const { name, email, emoji, emojiBackground } = body;
 
-    // Check if email is being changed and if it's already in use
     if (email) {
       const existingUser = await User.findOne({
         email,
@@ -95,7 +92,6 @@ export async function PATCH(req: NextRequest) {
       }
     }
 
-    // Update user
     const updateData: any = {};
     if (name !== undefined) updateData.name = name;
     if (email !== undefined) updateData.email = email;

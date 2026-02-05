@@ -4,7 +4,6 @@ import AdminNotification from "@/models/AdminNotification";
 import User from "@/models/User";
 import { verifyJWT } from "@/lib/jwt";
 
-// GET - Get all admin notifications
 export async function GET(req: NextRequest) {
   try {
     const token = req.cookies.get("auth-token")?.value;
@@ -26,7 +25,6 @@ export async function GET(req: NextRequest) {
 
     await dbConnect();
 
-    // Verify admin role
     const user = await User.findById(decoded.userId);
     if (!user || user.role !== "admin") {
       return NextResponse.json(
@@ -35,26 +33,22 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Get query parameters
     const { searchParams } = new URL(req.url);
     const type = searchParams.get("type");
     const isRead = searchParams.get("isRead");
     const limit = parseInt(searchParams.get("limit") || "50");
 
-    // Build query
     const query: any = {};
     if (type) query.type = type;
     if (isRead !== null && isRead !== undefined) {
       query.isRead = isRead === "true";
     }
 
-    // Fetch notifications
     const notifications = await AdminNotification.find(query)
       .sort({ createdAt: -1 })
       .limit(limit)
       .lean();
 
-    // Get counts
     const totalCount = await AdminNotification.countDocuments({});
     const unreadCount = await AdminNotification.countDocuments({
       isRead: false,

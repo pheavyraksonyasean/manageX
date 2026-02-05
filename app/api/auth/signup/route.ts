@@ -12,7 +12,6 @@ export async function POST(request: NextRequest) {
     await dbConnect();
     const { name, email, password, confirmPassword } = await request.json();
 
-    // Validation
     if (!name || !email || !password || !confirmPassword) {
       return NextResponse.json(
         { error: "Missing required fields" },
@@ -42,7 +41,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user already exists
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       return NextResponse.json(
@@ -51,18 +49,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Generate 6-digit OTP
     const otp = generateOTP();
-    const otpExpiry = getOTPExpiry(1); // 1 minute
+    const otpExpiry = getOTPExpiry(1);
 
-    // Delete any existing verification tokens for this email
     await VerificationToken.deleteMany({ email: email.toLowerCase() });
 
-    // Create user
     const user = new User({
       name,
       email: email.toLowerCase(),
@@ -72,7 +66,6 @@ export async function POST(request: NextRequest) {
 
     await user.save();
 
-    // Create admin notification for new user registration
     await AdminNotification.create({
       type: "user_registration",
       userId: user._id,
@@ -84,8 +77,6 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    //
-    // Save OTP
     const tokenDoc = new VerificationToken({
       email: email.toLowerCase(),
       otp: otp,
@@ -95,7 +86,6 @@ export async function POST(request: NextRequest) {
 
     await tokenDoc.save();
 
-    // Send verification email with OTP
     const emailResult = await sendVerificationOTP(email, otp, name);
 
     return NextResponse.json(

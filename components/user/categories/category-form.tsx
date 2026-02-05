@@ -56,7 +56,6 @@ export function CategoryForm({ onSubmit }: CategoryFormProps) {
       </div>
 
       <div className="space-y-4">
-        {/* Category Name Input */}
         <div className="space-y-2">
           <label className="text-sm font-medium text-foreground flex items-center gap-2">
             Category Name
@@ -73,14 +72,12 @@ export function CategoryForm({ onSubmit }: CategoryFormProps) {
           />
         </div>
 
-        {/* Color Selection */}
         <div className="space-y-2">
           <label className="text-sm font-medium text-foreground">
             Choose Color
           </label>
 
           <div className="flex items-center gap-3 flex-wrap">
-            {/* Selected Color Preview */}
             <div className="relative group">
               <div
                 className="absolute inset-0 rounded-xl blur-md opacity-50 group-hover:opacity-70 transition-opacity"
@@ -116,7 +113,6 @@ export function CategoryForm({ onSubmit }: CategoryFormProps) {
                   </button>
                 ))}
 
-              {/* Show More/Less Button */}
               {colorOptions.length > 6 && (
                 <button
                   onClick={() => setIsExpanded(!isExpanded)}
@@ -131,7 +127,6 @@ export function CategoryForm({ onSubmit }: CategoryFormProps) {
           </div>
         </div>
 
-        {/* Add Button */}
         <button
           onClick={handleSubmit}
           disabled={!name.trim()}

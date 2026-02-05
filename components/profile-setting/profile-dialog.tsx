@@ -35,7 +35,6 @@ interface ProfileData {
 
 type ActiveTab = "profile" | "password";
 
-// Cartoon avatar options - using different colors and styles
 const AVATAR_OPTIONS = [
   { id: "avatar1", bg: "#FF6B6B", emoji: "😊" },
   { id: "avatar2", bg: "#4ECDC4", emoji: "😎" },
@@ -64,7 +63,6 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
           </DialogTitle>
         </DialogHeader>
 
-        {/* Tab Navigation */}
         <div className="flex gap-1 px-3 sm:px-5 py-2.5 border-b border-border">
           <button
             onClick={() => setActiveTab("profile")}
@@ -88,7 +86,6 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
           </button>
         </div>
 
-        {/* Content Area - Scrollable */}
         <div className="flex-1 overflow-y-auto p-3 sm:p-5">
           {activeTab === "profile" ? (
             <ProfileInfoTab onClose={() => onOpenChange(false)} />
@@ -101,7 +98,6 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
   );
 }
 
-// Profile Info Tab Component
 function ProfileInfoTab({ onClose }: { onClose: () => void }) {
   const { updateUser } = useAuth();
   const [formData, setFormData] = useState<ProfileData>({
@@ -123,7 +119,6 @@ function ProfileInfoTab({ onClose }: { onClose: () => void }) {
     text: string;
   } | null>(null);
 
-  // Fetch user profile on mount
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -131,7 +126,6 @@ function ProfileInfoTab({ onClose }: { onClose: () => void }) {
         const data = await response.json();
 
         if (data.success) {
-          // Find the matching avatar based on emoji
           const matchingAvatar =
             AVATAR_OPTIONS.find(
               (a) =>
@@ -205,7 +199,6 @@ function ProfileInfoTab({ onClose }: { onClose: () => void }) {
         setFormData(updatedData);
         setInitialData(updatedData);
 
-        // Update auth context with new emoji
         updateUser({
           name: result.user.name,
           email: result.user.email,
@@ -251,7 +244,6 @@ function ProfileInfoTab({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="space-y-3">
-      {/* Success/Error Message */}
       {message && (
         <div
           className={`p-2 sm:p-2.5 rounded-lg flex items-center gap-2 text-xs sm:text-sm ${
@@ -269,7 +261,6 @@ function ProfileInfoTab({ onClose }: { onClose: () => void }) {
         </div>
       )}
 
-      {/* Avatar Section */}
       <div className="flex items-center gap-3 pb-3 border-b border-border">
         <div className="relative shrink-0">
           <button
@@ -309,7 +300,6 @@ function ProfileInfoTab({ onClose }: { onClose: () => void }) {
         )}
       </div>
 
-      {/* Avatar Picker */}
       {showAvatarPicker && isEditing && (
         <div className="p-3 bg-secondary/50 rounded-lg border border-border">
           <p className="text-[11px] sm:text-xs font-medium text-foreground mb-2">
@@ -336,7 +326,6 @@ function ProfileInfoTab({ onClose }: { onClose: () => void }) {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-2.5">
-        {/* Full Name */}
         <div className="space-y-1">
           <label className="text-[11px] sm:text-xs font-medium text-foreground flex items-center gap-1">
             <User className="w-3 h-3 text-muted-foreground" />
@@ -352,7 +341,6 @@ function ProfileInfoTab({ onClose }: { onClose: () => void }) {
           />
         </div>
 
-        {/* Email */}
         <div className="space-y-1">
           <label className="text-[11px] sm:text-xs font-medium text-foreground flex items-center gap-1">
             <Mail className="w-3 h-3 text-muted-foreground" />
@@ -368,7 +356,6 @@ function ProfileInfoTab({ onClose }: { onClose: () => void }) {
           />
         </div>
 
-        {/* Action Buttons */}
         {isEditing && (
           <div className="flex gap-2 pt-1.5">
             <button
@@ -399,7 +386,6 @@ function ProfileInfoTab({ onClose }: { onClose: () => void }) {
   );
 }
 
-// Change Password Tab Component
 function ChangePasswordTab({ onClose }: { onClose: () => void }) {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -508,7 +494,6 @@ function ChangePasswordTab({ onClose }: { onClose: () => void }) {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-2.5">
-        {/* Current Password */}
         <div className="space-y-1">
           <label className="text-[11px] sm:text-xs font-medium text-foreground flex items-center gap-1">
             <Lock className="w-3 h-3 text-muted-foreground" />
@@ -536,7 +521,6 @@ function ChangePasswordTab({ onClose }: { onClose: () => void }) {
           </div>
         </div>
 
-        {/* New Password */}
         <div className="space-y-1">
           <label className="text-[11px] sm:text-xs font-medium text-foreground flex items-center gap-1">
             <Lock className="w-3 h-3 text-muted-foreground" />
@@ -563,7 +547,6 @@ function ChangePasswordTab({ onClose }: { onClose: () => void }) {
             </button>
           </div>
 
-          {/* Password Strength */}
           {newPassword && (
             <div className="mt-1.5 space-y-1.5">
               <div className="flex items-center gap-1.5">
@@ -594,7 +577,6 @@ function ChangePasswordTab({ onClose }: { onClose: () => void }) {
                 </span>
               </div>
 
-              {/* Requirements */}
               <div className="grid grid-cols-3 gap-x-2 gap-y-0.5">
                 {passwordRequirements.map((req, index) => (
                   <div
@@ -618,7 +600,6 @@ function ChangePasswordTab({ onClose }: { onClose: () => void }) {
           )}
         </div>
 
-        {/* Confirm Password */}
         <div className="space-y-1">
           <label className="text-[11px] sm:text-xs font-medium text-foreground flex items-center gap-1">
             <Lock className="w-3 h-3 text-muted-foreground" />
@@ -655,7 +636,6 @@ function ChangePasswordTab({ onClose }: { onClose: () => void }) {
           )}
         </div>
 
-        {/* Submit Button */}
         <button
           type="submit"
           disabled={isSubmitting}

@@ -21,7 +21,6 @@ export function AdminCategoriesContent() {
     null,
   );
 
-  // Fetch categories on component mount
   useEffect(() => {
     fetchCategories();
     fetchAllTasks();
@@ -51,7 +50,6 @@ export function AdminCategoriesContent() {
       console.log("Admin tasks response data:", data);
 
       if (data.success) {
-        // Transform tasks to match the expected format
         const formattedTasks = data.tasks.map((task: any) => ({
           id: task.id,
           title: task.title,
@@ -124,8 +122,6 @@ export function AdminCategoriesContent() {
   return (
     <>
       <AdminCategoriesHeader totalCategories={categories.length} />
-
-      {/* No CategoryForm for admin - they cannot create categories */}
 
       <CategoriesGrid
         categories={categories}

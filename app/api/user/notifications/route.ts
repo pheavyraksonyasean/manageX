@@ -4,7 +4,6 @@ import Notification from "@/models/Notification";
 import Task from "@/models/Task";
 import { verifyJWT } from "@/lib/jwt";
 
-// GET - Fetch all notifications for the authenticated user
 export async function GET(req: NextRequest) {
   try {
     const token = req.cookies.get("auth-token")?.value;
@@ -26,17 +25,15 @@ export async function GET(req: NextRequest) {
 
     await dbConnect();
 
-    // Generate notifications for overdue and upcoming tasks
     await generateNotifications(decoded.userId);
 
-    // Fetch all notifications for the user
     const notifications = await Notification.find({ userId: decoded.userId })
       .populate("taskId")
       .sort({ createdAt: -1 })
       .lean();
 
     const formattedNotifications = notifications
-      .filter((notif) => notif.taskId) // Only include notifications with valid tasks
+      .filter((notif) => notif.taskId)
       .map((notif) => ({
         id: notif._id.toString(),
         type: notif.type,
@@ -64,7 +61,6 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// Helper function to generate notifications based on task due dates
 async function generateNotifications(userId: string) {
   try {
     const now = new Date();
@@ -74,7 +70,6 @@ async function generateNotifications(userId: string) {
     const threeDaysFromNow = new Date(today);
     threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);
 
-    // Get all incomplete tasks for the user
     const tasks = await Task.find({
       userId,
       status: { $ne: "completed" },
@@ -93,22 +88,17 @@ async function generateNotifications(userId: string) {
       let notificationMessage = "";
       let priority: "low" | "medium" | "high" = "medium";
 
-      // Check if task is overdue
       if (taskDateOnly < today) {
         notificationType = "overdue";
         notificationTitle = "Task Overdue";
         notificationMessage = `Task "${task.title}" is overdue. Consider completing or deleting it.`;
         priority = "high";
-      }
-      // Check if task is due today
-      else if (taskDateOnly.getTime() === today.getTime()) {
+      } else if (taskDateOnly.getTime() === today.getTime()) {
         notificationType = "due_today";
         notificationTitle = "Task Due Today";
         notificationMessage = `Task "${task.title}" is due today!`;
         priority = "high";
-      }
-      // Check if task is due within 3 days
-      else if (taskDateOnly < threeDaysFromNow) {
+      } else if (taskDateOnly < threeDaysFromNow) {
         notificationType = "due_soon";
         notificationTitle = "Task Due Soon";
         const daysUntilDue = Math.ceil(
@@ -118,7 +108,6 @@ async function generateNotifications(userId: string) {
         priority = "medium";
       }
 
-      // Create notification if needed and doesn't already exist
       if (notificationType) {
         const existingNotification = await Notification.findOne({
           userId,
@@ -140,7 +129,6 @@ async function generateNotifications(userId: string) {
       }
     }
 
-    // Clean up notifications for completed or deleted tasks
     const validTaskIds = tasks.map((t) => t._id);
     await Notification.deleteMany({
       userId,

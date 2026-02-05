@@ -4,13 +4,11 @@ import Category from "@/models/Category";
 import Task from "@/models/Task";
 import { verifyJWT } from "@/lib/jwt";
 
-// DELETE - Delete a category
 export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    // Get token from cookie
     const token = req.cookies.get("auth-token")?.value;
 
     if (!token) {
@@ -20,7 +18,6 @@ export async function DELETE(
       );
     }
 
-    // Verify token and get user info
     const decoded = verifyJWT(token);
     if (!decoded || !decoded.userId) {
       return NextResponse.json(
@@ -33,7 +30,6 @@ export async function DELETE(
 
     const { id } = await params;
 
-    // Find the category and ensure it belongs to the user
     const category = await Category.findOne({
       _id: id,
       userId: decoded.userId,
@@ -46,11 +42,7 @@ export async function DELETE(
       );
     }
 
-    // Delete the category
     await Category.findByIdAndDelete(id);
-
-    // Note: Tasks in this category will not be deleted
-    // You can optionally update tasks to set category to "Other" or null
 
     return NextResponse.json({
       success: true,
@@ -65,13 +57,11 @@ export async function DELETE(
   }
 }
 
-// PATCH - Update a category
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    // Get token from cookie
     const token = req.cookies.get("auth-token")?.value;
 
     if (!token) {
@@ -81,7 +71,6 @@ export async function PATCH(
       );
     }
 
-    // Verify token and get user info
     const decoded = verifyJWT(token);
     if (!decoded || !decoded.userId) {
       return NextResponse.json(
@@ -95,7 +84,6 @@ export async function PATCH(
 
     await dbConnect();
 
-    // Find the category and ensure it belongs to the user
     const category = await Category.findOne({
       _id: id,
       userId: decoded.userId,
@@ -108,9 +96,7 @@ export async function PATCH(
       );
     }
 
-    // Update fields if provided
     if (name && name.trim()) {
-      // Check if new name already exists (except for current category)
       const existingCategory = await Category.findOne({
         userId: decoded.userId,
         name: name.trim(),
@@ -133,7 +119,6 @@ export async function PATCH(
 
     await category.save();
 
-    // Get task count
     const taskCount = await Task.countDocuments({
       userId: decoded.userId,
       category: category.name,

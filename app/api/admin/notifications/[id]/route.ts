@@ -4,7 +4,6 @@ import AdminNotification from "@/models/AdminNotification";
 import User from "@/models/User";
 import { verifyJWT } from "@/lib/jwt";
 
-// PATCH - Mark notification as read/unread
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -29,7 +28,6 @@ export async function PATCH(
 
     await dbConnect();
 
-    // Verify admin role
     const user = await User.findById(decoded.userId);
     if (!user || user.role !== "admin") {
       return NextResponse.json(
@@ -72,7 +70,6 @@ export async function PATCH(
   }
 }
 
-// DELETE - Delete a notification
 export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -97,7 +94,6 @@ export async function DELETE(
 
     await dbConnect();
 
-    // Verify admin role
     const user = await User.findById(decoded.userId);
     if (!user || user.role !== "admin") {
       return NextResponse.json(

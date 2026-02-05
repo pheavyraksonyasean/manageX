@@ -35,7 +35,6 @@ export default function LoginForm() {
     setLoading(true);
     setError("");
 
-    // Validation
     if (!formData.email || !formData.password) {
       setError("Email and password are required");
       setLoading(false);
@@ -45,7 +44,6 @@ export default function LoginForm() {
     try {
       await login(formData.email, formData.password);
 
-      // Check user role from auth context to determine redirect
       const response = await fetch("/api/auth/check-auth");
       const data = await response.json();
 
@@ -63,7 +61,6 @@ export default function LoginForm() {
 
   return (
     <div className="min-h-screen bg-background text-foreground dark flex flex-col items-center justify-center px-4 py-8">
-      {/* Back Button */}
       <Link href="/" className="absolute top-8 left-8">
         <Button
           variant="outline"
@@ -73,7 +70,6 @@ export default function LoginForm() {
         </Button>
       </Link>
 
-      {/* Logo and Heading */}
       <div className="text-center mb-8 space-y-4">
         <div className="flex items-center justify-center gap-2">
           <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
@@ -89,7 +85,6 @@ export default function LoginForm() {
         </div>
       </div>
 
-      {/* Login Form */}
       <form onSubmit={handleSubmit} className="w-full max-w-md">
         <div className="border border-border rounded-xl p-8 space-y-6 bg-secondary/50">
           <div className="text-center space-y-2">
@@ -99,7 +94,6 @@ export default function LoginForm() {
             </p>
           </div>
 
-          {/* Email */}
           <div className="space-y-2">
             <Label htmlFor="email" className="text-sm font-medium">
               Email
@@ -115,7 +109,6 @@ export default function LoginForm() {
             />
           </div>
 
-          {/* Password */}
           <div className="space-y-2">
             <Label htmlFor="password" className="text-sm font-medium">
               Password
@@ -139,12 +132,10 @@ export default function LoginForm() {
             </Link>
           </div>
 
-          {/* Error Message */}
           {error && (
             <div className="text-sm text-red-500 text-center">{error}</div>
           )}
 
-          {/* Submit Button */}
           <Button
             type="submit"
             disabled={loading}
@@ -153,14 +144,12 @@ export default function LoginForm() {
             {loading ? "Signing in..." : "Sign In"}
           </Button>
 
-          {/* Divider */}
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-border"></div>
             </div>
           </div>
 
-          {/* Sign Up Link */}
           <p className="text-center text-sm text-muted-foreground">
             Don't have an account?{" "}
             <Link

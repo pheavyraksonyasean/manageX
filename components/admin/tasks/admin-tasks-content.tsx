@@ -16,7 +16,6 @@ export function AdminTasksContent() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
 
-  // Fetch all tasks from all users
   useEffect(() => {
     fetchAllTasks();
   }, []);
@@ -39,7 +38,6 @@ export function AdminTasksContent() {
     }
   };
 
-  // Filter tasks based on search and filters
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
       const matchesSearch =
@@ -56,7 +54,6 @@ export function AdminTasksContent() {
     });
   }, [tasks, searchQuery, statusFilter, priorityFilter]);
 
-  // Admin can delete tasks
   const handleDeleteTask = (taskId: string) => {
     setTaskToDelete(taskId);
     setDeleteConfirmOpen(true);
@@ -104,8 +101,8 @@ export function AdminTasksContent() {
       ) : (
         <TaskGrid
           tasks={filteredTasks}
-          onEdit={undefined} // Admin cannot edit
-          onDelete={handleDeleteTask} // Admin can delete
+          onEdit={undefined}
+          onDelete={handleDeleteTask}
           isAdminView={true}
         />
       )}

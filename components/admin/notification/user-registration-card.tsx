@@ -22,12 +22,10 @@ export function UserRegistrationCard({
   return (
     <div className="bg-secondary/40 rounded-xl p-5 border border-border hover:border-muted-foreground hover:bg-secondary/80 transition-colors">
       <div className="flex items-start justify-between gap-4">
-        {/* Icon */}
         <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
           <UserPlus className="w-4.5 h-4.5 text-primary" />
         </div>
 
-        {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <h3 className="text-sm font-semibold text-foreground">
@@ -49,7 +47,6 @@ export function UserRegistrationCard({
           </div>
         </div>
 
-        {/* Dismiss */}
         <button
           onClick={() => onDismiss(notification.id)}
           className="p-1 text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"

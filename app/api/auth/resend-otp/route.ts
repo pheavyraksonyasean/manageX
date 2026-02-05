@@ -14,7 +14,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
-    // Find user
     const user = await User.findOne({ email: email.toLowerCase() });
 
     if (!user) {
@@ -28,14 +27,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if there's an existing OTP that was created recently (rate limiting)
     const existingToken = await VerificationToken.findOne({
       email: email.toLowerCase(),
     });
 
     if (existingToken) {
       const timeSinceCreation = Date.now() - existingToken.createdAt.getTime();
-      const cooldownPeriod = 30000; // 30 seconds in milliseconds
+      const cooldownPeriod = 30000;
 
       if (timeSinceCreation < cooldownPeriod) {
         const remainingSeconds = Math.ceil(
@@ -50,14 +48,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Delete old OTP
     await VerificationToken.deleteMany({ email: email.toLowerCase() });
 
-    // Generate new OTP
     const otp = generateOTP();
-    const otpExpiry = getOTPExpiry(1); // 1 minute
+    const otpExpiry = getOTPExpiry(1);
 
-    // Save new OTP
     const tokenDoc = new VerificationToken({
       email: email.toLowerCase(),
       otp: otp,
@@ -67,7 +62,6 @@ export async function POST(request: NextRequest) {
 
     await tokenDoc.save();
 
-    // Send verification email
     const emailResult = await sendVerificationOTP(email, otp, user.name);
 
     return NextResponse.json(

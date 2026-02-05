@@ -4,7 +4,6 @@ import Notification from "@/models/Notification";
 import Task from "@/models/Task";
 import { verifyJWT } from "@/lib/jwt";
 
-// DELETE - Delete a notification and optionally delete the associated task
 export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -34,7 +33,6 @@ export async function DELETE(
       .json()
       .catch(() => ({ deleteTask: false }));
 
-    // Find the notification and ensure it belongs to the user
     const notification = await Notification.findOne({
       _id: id,
       userId: decoded.userId,
@@ -47,7 +45,6 @@ export async function DELETE(
       );
     }
 
-    // If deleteTask is true, also delete the associated task
     if (deleteTask && notification.taskId) {
       await Task.findOneAndDelete({
         _id: notification.taskId,
@@ -55,7 +52,6 @@ export async function DELETE(
       });
     }
 
-    // Delete the notification
     await Notification.findByIdAndDelete(id);
 
     return NextResponse.json({
@@ -73,7 +69,6 @@ export async function DELETE(
   }
 }
 
-// PATCH - Mark notification as read/unread
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -101,7 +96,6 @@ export async function PATCH(
     const { id } = await params;
     const { isRead } = await req.json();
 
-    // Find and update the notification
     const notification = await Notification.findOneAndUpdate(
       {
         _id: id,

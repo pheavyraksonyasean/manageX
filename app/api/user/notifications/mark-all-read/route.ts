@@ -3,7 +3,6 @@ import dbConnect from "@/lib/mongodb";
 import Notification from "@/models/Notification";
 import { verifyJWT } from "@/lib/jwt";
 
-// PATCH - Mark all notifications as read
 export async function PATCH(req: NextRequest) {
   try {
     const token = req.cookies.get("auth-token")?.value;
@@ -43,7 +42,6 @@ export async function PATCH(req: NextRequest) {
   }
 }
 
-// DELETE - Clear all read notifications
 export async function DELETE(req: NextRequest) {
   try {
     const token = req.cookies.get("auth-token")?.value;

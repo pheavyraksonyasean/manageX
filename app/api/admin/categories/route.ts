@@ -5,10 +5,8 @@ import Task from "@/models/Task";
 import User from "@/models/User";
 import { verifyJWT } from "@/lib/jwt";
 
-// GET - Fetch all categories (admin only)
 export async function GET(req: NextRequest) {
   try {
-    // Get token from cookie
     const token = req.cookies.get("auth-token")?.value;
 
     if (!token) {
@@ -18,7 +16,6 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Verify token and get user info
     const decoded = verifyJWT(token);
     if (!decoded || !decoded.userId) {
       return NextResponse.json(
@@ -29,7 +26,6 @@ export async function GET(req: NextRequest) {
 
     await dbConnect();
 
-    // Check if user is admin
     const user = await User.findById(decoded.userId);
     if (!user || user.role !== "admin") {
       return NextResponse.json(
@@ -38,14 +34,12 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Fetch all categories from all users
     const categories = await Category.find()
       .populate("userId", "name email")
       .sort({
         createdAt: -1,
       });
 
-    // Get task counts for each category
     const categoriesWithTaskCount = await Promise.all(
       categories.map(async (category) => {
         const taskCount = await Task.countDocuments({

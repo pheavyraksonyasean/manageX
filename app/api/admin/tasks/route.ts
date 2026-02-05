@@ -5,7 +5,6 @@ import Task from "@/models/Task";
 import User from "@/models/User";
 import { verifyJWT } from "@/lib/jwt";
 
-// GET /api/admin/tasks - Get all tasks from all users (admin only)
 export async function GET() {
   try {
     const cookieStore = await cookies();
@@ -20,7 +19,6 @@ export async function GET() {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    // Check if user is admin
     await dbConnect();
     const user = await User.findById(decoded.userId);
 
@@ -31,13 +29,11 @@ export async function GET() {
       );
     }
 
-    // Get all tasks from all users
     const tasks = await Task.find()
       .populate("userId", "name email")
       .sort({ createdAt: -1 })
       .lean();
 
-    // Format tasks for frontend
     const formattedTasks = tasks.map((task) => ({
       id: task._id.toString(),
       title: task.title,

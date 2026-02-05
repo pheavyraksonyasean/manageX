@@ -20,7 +20,6 @@ export function ProfileContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Fetch user profile on mount
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -65,7 +64,6 @@ export function ProfileContent() {
         };
         setUserData(updatedData);
 
-        // Update auth context so sidebar reflects changes immediately
         updateUser({
           name: result.user.name,
           email: result.user.email,
@@ -134,12 +132,10 @@ export function ProfileContent() {
       <ProfileHeader />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Profile Info Form */}
         <div className="lg:col-span-2 xl:col-span-1">
           <ProfileInfoForm initialData={userData} onSave={handleSaveProfile} />
         </div>
 
-        {/* Change Password Form */}
         <div className="lg:col-span-2 xl:col-span-1">
           <ChangePasswordForm onSubmit={handleChangePassword} />
         </div>

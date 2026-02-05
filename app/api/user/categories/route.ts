@@ -4,10 +4,8 @@ import Category from "@/models/Category";
 import Task from "@/models/Task";
 import { verifyJWT } from "@/lib/jwt";
 
-// GET - Fetch all categories for the authenticated user
 export async function GET(req: NextRequest) {
   try {
-    // Get token from cookie
     const token = req.cookies.get("auth-token")?.value;
 
     if (!token) {
@@ -17,7 +15,6 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Verify token and get user info
     const decoded = verifyJWT(token);
     if (!decoded || !decoded.userId) {
       return NextResponse.json(
@@ -28,12 +25,10 @@ export async function GET(req: NextRequest) {
 
     await dbConnect();
 
-    // Fetch categories for the user
     const categories = await Category.find({ userId: decoded.userId }).sort({
       createdAt: -1,
     });
 
-    // Get task counts for each category
     const categoriesWithTaskCount = await Promise.all(
       categories.map(async (category) => {
         const taskCount = await Task.countDocuments({
@@ -64,10 +59,8 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// POST - Create a new category
 export async function POST(req: NextRequest) {
   try {
-    // Get token from cookie
     const token = req.cookies.get("auth-token")?.value;
 
     if (!token) {
@@ -76,8 +69,6 @@ export async function POST(req: NextRequest) {
         { status: 401 },
       );
     }
-
-    // Verify token and get user info
     const decoded = verifyJWT(token);
     if (!decoded || !decoded.userId) {
       return NextResponse.json(
@@ -88,7 +79,6 @@ export async function POST(req: NextRequest) {
 
     const { name, color } = await req.json();
 
-    // Validate input
     if (!name || !name.trim()) {
       return NextResponse.json(
         { success: false, message: "Category name is required" },
@@ -104,8 +94,6 @@ export async function POST(req: NextRequest) {
     }
 
     await dbConnect();
-
-    // Check if category already exists for this user
     const existingCategory = await Category.findOne({
       userId: decoded.userId,
       name: name.trim(),
@@ -117,8 +105,6 @@ export async function POST(req: NextRequest) {
         { status: 400 },
       );
     }
-
-    // Create new category
     const category = await Category.create({
       userId: decoded.userId,
       name: name.trim(),

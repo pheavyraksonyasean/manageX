@@ -37,14 +37,12 @@ export function ChartsSection() {
       const data = await response.json();
 
       if (response.ok) {
-        // Update bar chart data (priority)
         setBarChartData([
           { name: "High", value: data.priorityStats.high },
           { name: "Medium", value: data.priorityStats.medium },
           { name: "Low", value: data.priorityStats.low },
         ]);
 
-        // Update pie chart data (status)
         setPieChartData([
           { name: "To Do", value: data.statusStats.todo, color: "#77ABAE" },
           {
@@ -85,7 +83,6 @@ export function ChartsSection() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-      {/* Bar Chart */}
       <div className="border border-border rounded-xl p-6 bg-secondary/40">
         <h3 className="text-lg font-semibold mb-6">Tasks by priorities</h3>
         <ResponsiveContainer width="100%" height={300}>
@@ -109,7 +106,6 @@ export function ChartsSection() {
         </ResponsiveContainer>
       </div>
 
-      {/* Pie Chart */}
       <div className="border border-border rounded-xl p-6 bg-secondary/40">
         <h3 className="text-lg font-semibold mb-6">Tasks by status</h3>
         <ResponsiveContainer width="100%" height={300}>

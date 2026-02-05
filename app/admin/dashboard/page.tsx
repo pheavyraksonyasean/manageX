@@ -10,14 +10,8 @@ export default function AdminDashboardPage() {
         titleName="Admin Dashboard"
         userName="System overview and statistics"
       />
-
-      {/* Admin Stats - extends user stats with admin-specific metrics */}
       <AdminStatsSection userRole="admin" />
-
-      {/* Tasks by Priorities Chart - only bar chart for admin */}
       <AdminBarChart />
-
-      {/* Admin-specific: System Users Section */}
       <SystemUsers />
     </div>
   );

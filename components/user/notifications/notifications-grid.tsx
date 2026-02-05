@@ -75,7 +75,6 @@ export function NotificationsGrid({
 
   return (
     <div className="space-y-6">
-      {/* Trash Drop Zone - Only visible when dragging */}
       <div
         onDragOver={handleDragOver}
         onDragEnter={handleDragEnterTrash}
@@ -115,7 +114,6 @@ export function NotificationsGrid({
         </div>
       </div>
 
-      {/* Tasks Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
         {tasks.map((task) => (
           <NotificationCard
@@ -131,7 +129,6 @@ export function NotificationsGrid({
         ))}
       </div>
 
-      {/* Drag hint */}
       {tasks.length > 0 && !draggingTaskId && (
         <p className="text-center text-muted-foreground text-xs sm:text-sm">
           💡 Tip: Drag and drop tasks to the trash zone to delete them

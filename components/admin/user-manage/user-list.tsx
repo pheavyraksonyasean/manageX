@@ -23,14 +23,12 @@ export function UserList({ users }: UserListProps) {
             className="flex items-center justify-between p-4 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors"
           >
             <div className="flex items-center gap-4 flex-1 min-w-0">
-              {/* Avatar */}
               <Avatar className="w-12 h-12 bg-primary/20 flex-shrink-0">
                 <AvatarFallback className="bg-primary/30 text-primary-foreground font-medium text-sm">
                   user
                 </AvatarFallback>
               </Avatar>
 
-              {/* User Info */}
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm text-foreground">
                   {user.name}
@@ -41,7 +39,6 @@ export function UserList({ users }: UserListProps) {
               </div>
             </div>
 
-            {/* Tasks & Role */}
             <div className="flex items-center gap-4 flex-shrink-0">
               <div className="text-right">
                 <p className="text-xs text-muted-foreground">Tasks</p>

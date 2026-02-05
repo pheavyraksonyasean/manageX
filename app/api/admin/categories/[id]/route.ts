@@ -4,13 +4,11 @@ import Category from "@/models/Category";
 import User from "@/models/User";
 import { verifyJWT } from "@/lib/jwt";
 
-// DELETE - Delete a category (admin only)
 export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    // Get token from cookie
     const token = req.cookies.get("auth-token")?.value;
 
     if (!token) {
@@ -20,7 +18,6 @@ export async function DELETE(
       );
     }
 
-    // Verify token and get user info
     const decoded = verifyJWT(token);
     if (!decoded || !decoded.userId) {
       return NextResponse.json(
@@ -31,7 +28,6 @@ export async function DELETE(
 
     await dbConnect();
 
-    // Check if user is admin
     const user = await User.findById(decoded.userId);
     if (!user || user.role !== "admin") {
       return NextResponse.json(
@@ -42,7 +38,6 @@ export async function DELETE(
 
     const { id } = await params;
 
-    // Find and delete the category
     const category = await Category.findByIdAndDelete(id);
 
     if (!category) {

@@ -4,7 +4,6 @@ import AdminNotification from "@/models/AdminNotification";
 import User from "@/models/User";
 import { verifyJWT } from "@/lib/jwt";
 
-// PATCH - Mark all notifications as read
 export async function PATCH(req: NextRequest) {
   try {
     const token = req.cookies.get("auth-token")?.value;
@@ -26,7 +25,6 @@ export async function PATCH(req: NextRequest) {
 
     await dbConnect();
 
-    // Verify admin role
     const user = await User.findById(decoded.userId);
     if (!user || user.role !== "admin") {
       return NextResponse.json(
@@ -50,7 +48,6 @@ export async function PATCH(req: NextRequest) {
   }
 }
 
-// DELETE - Delete all read notifications
 export async function DELETE(req: NextRequest) {
   try {
     const token = req.cookies.get("auth-token")?.value;
@@ -72,7 +69,6 @@ export async function DELETE(req: NextRequest) {
 
     await dbConnect();
 
-    // Verify admin role
     const user = await User.findById(decoded.userId);
     if (!user || user.role !== "admin") {
       return NextResponse.json(

@@ -6,7 +6,6 @@ import User from "@/models/User";
 import { verifyJWT } from "@/lib/jwt";
 import mongoose from "mongoose";
 
-// DELETE /api/admin/tasks/[id] - Delete any user's task (admin only)
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
@@ -24,7 +23,6 @@ export async function DELETE(
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    // Check if user is admin
     await dbConnect();
     const user = await User.findById(decoded.userId);
 
@@ -41,7 +39,6 @@ export async function DELETE(
       return NextResponse.json({ error: "Invalid task ID" }, { status: 400 });
     }
 
-    // Admin can delete any task
     const task = await Task.findByIdAndDelete(id);
 
     if (!task) {

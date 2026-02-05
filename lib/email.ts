@@ -1,6 +1,5 @@
 import nodemailer from "nodemailer";
 
-// Check if email is configured
 const isEmailConfigured = () => {
   return !!(
     process.env.EMAIL_HOST &&
@@ -26,7 +25,6 @@ export async function sendVerificationOTP(
   otp: string,
   name: string,
 ) {
-  // If email is not configured, log OTP to console for development
   if (!isEmailConfigured() || !transporter) {
     console.log("\n" + "=".repeat(50));
     console.log("📧 EMAIL NOT CONFIGURED - DEVELOPMENT MODE");
@@ -110,7 +108,6 @@ export async function sendResetPasswordEmail(
   token: string,
   name: string,
 ) {
-  // If email is not configured, log token to console for development
   if (!isEmailConfigured() || !transporter) {
     console.log("\n" + "=".repeat(50));
     console.log("📧 EMAIL NOT CONFIGURED - DEVELOPMENT MODE");

@@ -69,13 +69,11 @@ export function NotificationCard({
             : "border-border/50 hover:border-border hover:shadow-md"
       }`}
     >
-      {/* Left accent bar */}
       <div
         className="absolute left-0 top-4 bottom-4 w-1 rounded-r-full transition-all duration-300"
         style={{ backgroundColor: priority.color }}
       />
 
-      {/* Header with checkbox and delete */}
       <div className="flex items-start justify-between mb-4 ml-3">
         <button
           onClick={(e) => {
@@ -104,9 +102,7 @@ export function NotificationCard({
         </button>
       </div>
 
-      {/* Content */}
       <div className="ml-3 space-y-3">
-        {/* Overdue indicator */}
         <div className="flex items-center gap-2">
           <div className={`p-1 rounded-lg ${priority.bg}`}>
             <AlertCircle className={`w-3.5 h-3.5 ${priority.text}`} />
@@ -118,19 +114,16 @@ export function NotificationCard({
           </span>
         </div>
 
-        {/* Title */}
         <h3 className="font-semibold text-foreground leading-tight line-clamp-2">
           {task.title}
         </h3>
 
-        {/* Description */}
         {task.description && (
           <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
             {task.description}
           </p>
         )}
 
-        {/* Footer */}
         <div className="flex items-center justify-between pt-2 border-t border-border/30">
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Clock className="w-3.5 h-3.5" />

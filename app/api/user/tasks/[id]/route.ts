@@ -5,7 +5,6 @@ import Task from "@/models/Task";
 import { verifyJWT } from "@/lib/jwt";
 import mongoose from "mongoose";
 
-// PUT /api/tasks/[id] - Update a task
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
@@ -34,7 +33,6 @@ export async function PUT(
 
     await dbConnect();
 
-    // Find task and verify ownership
     const task = await Task.findOne({
       _id: id,
       userId: decoded.userId,
@@ -47,7 +45,6 @@ export async function PUT(
       );
     }
 
-    // Update task
     if (title !== undefined) task.title = title;
     if (description !== undefined) task.description = description;
     if (category !== undefined) task.category = category;
@@ -57,7 +54,6 @@ export async function PUT(
 
     await task.save();
 
-    // Format task for frontend
     const formattedTask = {
       id: task._id.toString(),
       title: task.title,
@@ -85,7 +81,6 @@ export async function PUT(
   }
 }
 
-// DELETE /api/tasks/[id] - Delete a task
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
@@ -111,7 +106,6 @@ export async function DELETE(
 
     await dbConnect();
 
-    // Find and delete task (verify ownership)
     const task = await Task.findOneAndDelete({
       _id: id,
       userId: decoded.userId,

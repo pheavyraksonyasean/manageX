@@ -72,7 +72,6 @@ export function TaskDialog({
     return undefined;
   });
 
-  // Fetch categories when dialog opens
   useEffect(() => {
     if (open) {
       fetchCategories();
@@ -93,12 +92,11 @@ export function TaskDialog({
       }
     } catch (error) {
       console.error("Error fetching categories:", error);
-      // Fallback to empty array if fetch fails
+
       setCategoryOptions([]);
     }
   };
 
-  // Reset form when dialog opens with new data
   useEffect(() => {
     if (open) {
       setTitle(initialData?.title || "");
@@ -140,7 +138,6 @@ export function TaskDialog({
       dueDate: format(dueDate, "MMM dd, yyyy"),
     });
 
-    // Reset form
     setTitle("");
     setDescription("");
     setCategory("");
@@ -169,7 +166,6 @@ export function TaskDialog({
         </DialogHeader>
 
         <div className="space-y-4 sm:space-y-5">
-          {/* Title */}
           <div className="space-y-1.5 sm:space-y-2">
             <label className="text-sm font-medium text-foreground">
               Title <span className="text-red-500">*</span>
@@ -183,7 +179,6 @@ export function TaskDialog({
             />
           </div>
 
-          {/* Description */}
           <div className="space-y-1.5 sm:space-y-2">
             <label className="text-sm font-medium text-foreground">
               Description <span className="text-red-500">*</span>
@@ -197,9 +192,7 @@ export function TaskDialog({
             />
           </div>
 
-          {/* Category & Priority */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            {/* Category */}
             <div className="space-y-1.5 sm:space-y-2">
               <label className="text-sm font-medium text-foreground">
                 Category <span className="text-red-500">*</span>
@@ -237,7 +230,6 @@ export function TaskDialog({
               </DropdownMenu>
             </div>
 
-            {/* Priority */}
             <div className="space-y-1.5 sm:space-y-2">
               <label className="text-sm font-medium text-foreground">
                 Priority <span className="text-red-500">*</span>
@@ -284,9 +276,7 @@ export function TaskDialog({
             </div>
           </div>
 
-          {/* Status & Due Date */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            {/* Status */}
             <div className="space-y-1.5 sm:space-y-2">
               <label className="text-sm font-medium text-foreground">
                 Status <span className="text-red-500">*</span>
@@ -334,7 +324,6 @@ export function TaskDialog({
               </DropdownMenu>
             </div>
 
-            {/* Due Date */}
             <div className="space-y-1.5 sm:space-y-2">
               <label className="text-sm font-medium text-foreground">
                 Due Date <span className="text-red-500">*</span>

@@ -4,7 +4,6 @@ import User from "@/models/User";
 import { verifyJWT } from "@/lib/jwt";
 import bcrypt from "bcryptjs";
 
-// PATCH - Change user password
 export async function PATCH(req: NextRequest) {
   try {
     const token = req.cookies.get("auth-token")?.value;
@@ -49,7 +48,6 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    // Find user with password field
     const user = await User.findById(decoded.userId);
 
     if (!user) {
@@ -59,7 +57,6 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    // Verify current password
     const isPasswordValid = await bcrypt.compare(
       currentPassword,
       user.password,
@@ -72,10 +69,8 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    // Hash new password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    // Update password
     user.password = hashedPassword;
     await user.save();
 

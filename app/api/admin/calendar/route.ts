@@ -4,7 +4,6 @@ import Task from "@/models/Task";
 import User from "@/models/User";
 import { verifyJWT } from "@/lib/jwt";
 
-// GET - Get calendar data with task counts for all users (admin only)
 export async function GET(req: NextRequest) {
   try {
     const token = req.cookies.get("auth-token")?.value;
@@ -26,7 +25,6 @@ export async function GET(req: NextRequest) {
 
     await dbConnect();
 
-    // Verify admin role
     const user = await User.findById(decoded.userId);
     if (!user || user.role !== "admin") {
       return NextResponse.json(
@@ -35,20 +33,17 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Get month and year from query params, default to current month
     const { searchParams } = new URL(req.url);
     const month = searchParams.get("month");
     const year = searchParams.get("year");
 
     const now = new Date();
-    const targetMonth = month ? parseInt(month) - 1 : now.getMonth(); // Convert 1-based to 0-based
+    const targetMonth = month ? parseInt(month) - 1 : now.getMonth();
     const targetYear = year ? parseInt(year) : now.getFullYear();
 
-    // Get first and last day of the month
     const firstDay = new Date(targetYear, targetMonth, 1);
     const lastDay = new Date(targetYear, targetMonth + 1, 0);
 
-    // Fetch all tasks from all users in this month
     const tasks = await Task.find({
       dueDate: {
         $gte: firstDay,
@@ -59,7 +54,6 @@ export async function GET(req: NextRequest) {
       .select("dueDate status priority category title userId")
       .lean();
 
-    // Group tasks by date
     const tasksByDate: Record<
       string,
       {
@@ -83,19 +77,18 @@ export async function GET(req: NextRequest) {
     > = {};
 
     tasks.forEach((task: any) => {
-      // Use local date to avoid timezone shifts
       const taskDate = new Date(task.dueDate);
       const year = taskDate.getFullYear();
       const month = String(taskDate.getMonth() + 1).padStart(2, "0");
       const day = String(taskDate.getDate()).padStart(2, "0");
-      const dateKey = `${year}-${month}-${day}`; // YYYY-MM-DD in local timezone
+      const dateKey = `${year}-${month}-${day}`;
 
       if (!tasksByDate[dateKey]) {
         tasksByDate[dateKey] = {
           date: dateKey,
           count: 0,
           level: "low",
-          color: "#10b981", // Default green
+          color: "#10b981",
           tasks: [],
         };
       }
@@ -115,28 +108,25 @@ export async function GET(req: NextRequest) {
       });
     });
 
-    // Calculate levels and colors based on task count
     Object.keys(tasksByDate).forEach((dateKey) => {
       const count = tasksByDate[dateKey].count;
 
       if (count <= 2) {
         tasksByDate[dateKey].level = "low";
-        tasksByDate[dateKey].color = "#10b981"; // Green - few tasks
+        tasksByDate[dateKey].color = "#10b981";
       } else if (count <= 5) {
         tasksByDate[dateKey].level = "medium";
-        tasksByDate[dateKey].color = "#f59e0b"; // Amber - moderate tasks
+        tasksByDate[dateKey].color = "#f59e0b";
       } else {
         tasksByDate[dateKey].level = "high";
-        tasksByDate[dateKey].color = "#ef4444"; // Red - many tasks
+        tasksByDate[dateKey].color = "#ef4444";
       }
     });
 
-    // Convert to array and sort by date
     const calendarData = Object.values(tasksByDate).sort(
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
     );
 
-    // Calculate summary statistics
     const totalTasks = tasks.length;
     const completedTasks = tasks.filter((t) => t.status === "completed").length;
     const pendingTasks = totalTasks - completedTasks;
